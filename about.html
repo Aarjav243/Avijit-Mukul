@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About & Pedagogy | Avijit Mukul Kishore</title>
+  <meta name="description" content="Biography, education, and film pedagogy work of Avijit Mukul Kishore, documentary filmmaker and cinematographer." />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- NAVIGATION HEADER -->
+  <header class="site-nav" role="banner">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">AMK</a>
+      
+      <button class="nav-toggle" aria-label="Toggle Navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      
+      <nav role="navigation" aria-label="Primary Navigation">
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html" class="active">About & Pedagogy</a></li>
+          <li><a href="director.html">Director</a></li>
+          <li><a href="cinematographer.html">Cinematographer</a></li>
+          <li><a href="writing.html">Writing</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- BIO SECTION -->
+    <section class="about-hero" aria-label="Biography">
+      <div class="container about-hero-grid">
+        <div class="profile-still-box reveal-element">
+          <!-- Curated high-end cinema/director still as portrait slot -->
+          <img 
+            class="profile-img" 
+            src="https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800" 
+            alt="Avijit Mukul Kishore portrait behind lens" 
+          />
+        </div>
+        
+        <div class="about-body-text reveal-element">
+          <span class="text-mono">Biography</span>
+          <h1 class="text-heading-large">Avijit Mukul Kishore</h1>
+          
+          <p class="text-body" style="font-size: 1.15rem; color: var(--text-primary);">
+            Avijit Mukul Kishore is a filmmaker and cinematographer based in Mumbai. He works primarily in documentary and inter-disciplinary moving-image practice. He has made eleven documentary films as director and worked on several others as cinematographer. He has shot one fiction feature and worked on television talk shows and advertising films.
+          </p>
+          
+          <p class="text-body">
+            Kishore has been involved in cinema pedagogy as a lecturer and a curator of film programmes for over two decades. He is deeply interested in the non-fiction film form and has worked extensively with state film and media archives to study the moving-image as a marker of identity and culture.
+          </p>
+
+          <p class="text-body">
+            Beyond directing, Kishore worked as a broadcaster on state radio and television for five years and was a member of two prominent theatre groups in Delhi. His lectures and curations explore the limits of documentary form, bridging traditional film structures with contemporary visual arts.
+          </p>
+
+          <div style="margin-top: 1.5rem;">
+            <a href="resume.md" class="btn btn-secondary" target="_blank">
+              <span>View Full CV (Markdown)</span>
+              <i data-lucide="file-text" style="width: 16px; height: 16px; margin-left: 0.5rem;"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIMELINE / EDUCATION SECTION -->
+    <section class="academic-timeline" aria-labelledby="academic-heading">
+      <div class="container">
+        <span class="text-mono">Academic Framework</span>
+        <h2 id="academic-heading" class="text-heading-large" style="margin-top: 0.5rem;">Education & Curation</h2>
+        
+        <div class="timeline-list">
+          <div class="timeline-item reveal-element">
+            <div class="timeline-date">1995</div>
+            <div class="timeline-content">
+              <h3>Diploma in Cinema (Cinematography)</h3>
+              <p>Film and Television Institute of India, Pune. Specialization in cinema pedagogy, moving-image capture, lighting design, and camera choreography.</p>
+            </div>
+          </div>
+
+          <div class="timeline-item reveal-element">
+            <div class="timeline-date">1992</div>
+            <div class="timeline-content">
+              <h3>Bachelors of Arts (Honours) in History</h3>
+              <p>Hindu College, University of Delhi. Focused on modern Indian history, archive study, and post-colonial cultural identity research.</p>
+            </div>
+          </div>
+
+          <div class="timeline-item reveal-element">
+            <div class="timeline-date">Curation</div>
+            <div class="timeline-content">
+              <h3>Film Programs Curation</h3>
+              <p>Over two decades curating public film exhibitions, archive retrospective selections, and pedagogical workshops on documentary forms across academic institutions in India and internationally.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ARCHIVAL FOOTER -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container footer-container">
+      <div class="footer-copy">
+        &copy; 2026 Avijit Mukul Kishore. All Rights Reserved.
+      </div>
+      <ul class="footer-links">
+        <li><a href="about.html">Pedagogy</a></li>
+        <li><a href="director.html">Filmmaking</a></li>
+        <li><a href="cinematographer.html">Cinematography</a></li>
+        <li><a href="writing.html">Essays</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

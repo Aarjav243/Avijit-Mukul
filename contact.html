@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact | Avijit Mukul Kishore</title>
+  <meta name="description" content="Get in touch with Mumbai-based documentary filmmaker and cinematographer Avijit Mukul Kishore." />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- NAVIGATION HEADER -->
+  <header class="site-nav" role="banner">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">AMK</a>
+      
+      <button class="nav-toggle" aria-label="Toggle Navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      
+      <nav role="navigation" aria-label="Primary Navigation">
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About & Pedagogy</a></li>
+          <li><a href="director.html">Director</a></li>
+          <li><a href="cinematographer.html">Cinematographer</a></li>
+          <li><a href="writing.html">Writing</a></li>
+          <li><a href="contact.html" class="active">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="contact-section">
+      <div class="container">
+        <span class="text-mono">Connection & Collaboration</span>
+        <h1 class="text-heading-large" style="margin-top: 0.5rem; margin-bottom: 2rem;">Get in Touch</h1>
+        <p class="text-body" style="margin-bottom: 4rem;">
+          For lecturing proposals, cinematography collaborations, curatorial consultancies, or project conversations, please reach out via the archival contact channels or form below.
+        </p>
+
+        <div class="contact-grid">
+          <!-- Left Column: Contact details from Resume -->
+          <div class="contact-info-panel reveal-element">
+            <div class="contact-block">
+              <h3>Office / Mail Address</h3>
+              <p>113, Avon Classic,<br />Dattapada Road, Borivali (E),<br />Mumbai, 400066, India</p>
+            </div>
+
+            <div class="contact-block">
+              <h3>Direct Telephone</h3>
+              <p><a href="tel:+919820095600">+91-98200-95600</a></p>
+            </div>
+
+            <div class="contact-block">
+              <h3>Electronic Mail</h3>
+              <p><a href="mailto:avimuk@gmail.com">avimuk@gmail.com</a></p>
+            </div>
+
+            <div class="contact-block">
+              <h3>Professional Circles</h3>
+              <p style="font-size: 1.05rem; color: var(--text-secondary);">
+                Member of VisionMix, a prominent collective of visual art practitioners across the UK and India.
+              </p>
+            </div>
+          </div>
+
+          <!-- Right Column: Minimal form -->
+          <div class="contact-form-container reveal-element">
+            <form class="contact-form" action="#" method="POST" onsubmit="event.preventDefault(); alert('Message logged successfully in the mock workspace backend.');">
+              <div class="form-group">
+                <label for="form-name">Your Full Name</label>
+                <input class="form-input" type="text" id="form-name" placeholder="E.g., Malati Rao" required />
+              </div>
+
+              <div class="form-group">
+                <label for="form-email">Your Email Address</label>
+                <input class="form-input" type="email" id="form-email" placeholder="name@domain.com" required />
+              </div>
+
+              <div class="form-group">
+                <label for="form-subject">Collaborative Subject</label>
+                <input class="form-input" type="text" id="form-subject" placeholder="Pedagogy Workshop / Cinematography Proposal" required />
+              </div>
+
+              <div class="form-group">
+                <label for="form-message">Brief Project Message</label>
+                <textarea class="form-input" id="form-message" rows="4" placeholder="Detail your project goals, timelines, and screening venues..." required style="resize: none;"></textarea>
+              </div>
+
+              <button class="btn btn-primary" type="submit" style="width: 100%; border: none;">
+                <span>Send Archival Request</span>
+                <i data-lucide="send" style="width: 14px; height: 14px; margin-left: 0.5rem;"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ARCHIVAL FOOTER -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container footer-container">
+      <div class="footer-copy">
+        &copy; 2026 Avijit Mukul Kishore. All Rights Reserved.
+      </div>
+      <ul class="footer-links">
+        <li><a href="about.html">Pedagogy</a></li>
+        <li><a href="director.html">Filmmaking</a></li>
+        <li><a href="cinematographer.html">Cinematography</a></li>
+        <li><a href="writing.html">Essays</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
