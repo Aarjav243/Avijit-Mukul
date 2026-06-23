@@ -460,6 +460,8 @@ document.addEventListener('DOMContentLoaded', () => {
     revealElements.forEach(el => {
       observer.observe(el);
     });
+    // Expose so CMS-rendered elements can be observed after the fact
+    window.__observeNew = (els) => els.forEach(el => observer.observe(el));
   } else {
     // Fallback if IntersectionObserver isn't supported
     revealElements.forEach(el => {
@@ -538,6 +540,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!window.gsap) { row.style.opacity = '1'; return; }
       window.gsap.killTweensOf(row);
       const fromX = index % 2 === 0 ? -50 : 50;
+      // Reset children that may have been hidden by film-mode tab switch
+      const children = row.querySelectorAll('.cinema-title-block, .cinema-meta-block');
+      window.gsap.set(children, { opacity: 1, y: 0, overwrite: true });
       window.gsap.set(row, { opacity: 0, x: fromX, y: 0, filter: 'none', overwrite: true });
       window.gsap.to(row, {
         opacity: 1,
@@ -620,16 +625,12 @@ document.addEventListener('DOMContentLoaded', () => {
           const row = entry.target;
 
           if (entry.isIntersecting) {
-            // If the row is already in revealedRows from a tab switch, don't re-animate it 
-            // on the very first slight scroll. But if it's genuinely entering the viewport
-            // (we reset it when it leaves), we want to animate it.
-            // Wait, we DO want to protect rows during tab switches. 
-            if (revealedRows.has(row)) {
-              // It's already revealed and visible. Leave it alone until it exits.
+            // Guard: skip only when row is genuinely visible (opacity > 0.1).
+            // If row is in revealedRows but invisible (was reset while tracked), force re-animate.
+            if (revealedRows.has(row) && window.gsap && window.gsap.getProperty(row, 'opacity') > 0.1) {
               return;
             }
 
-            // Mark as revealed so a slight scroll doesn't re-trigger it
             revealedRows.add(row);
 
             if (activeTabFilter === 'art') {
@@ -651,6 +652,24 @@ document.addEventListener('DOMContentLoaded', () => {
       }, cinemaObserverOptions);
 
       cinemaRows.forEach(row => cinemaObserver.observe(row));
+
+      // Expose so CMS-rendered rows can be added to observer later
+      window.__observeCinemaRows = (newRows) => {
+        newRows.forEach(row => {
+          if (!row.querySelector('.cinema-clap-line') && row.getAttribute('data-category') === 'film') {
+            const line = document.createElement('span');
+            line.className = 'cinema-clap-line';
+            row.prepend(line);
+          }
+          if (window.gsap) window.gsap.set(row, { opacity: 0, x: -50, filter: 'none', overwrite: true });
+          cinemaObserver.observe(row);
+        });
+      };
+      window.__tabsInit = () => {
+        if (window.__observeCinemaRows) {
+          window.__observeCinemaRows(document.querySelectorAll('.cinema-row'));
+        }
+      };
     }
 
     // ── Tab click handler ─────────────────────────────────────────────────────
@@ -670,8 +689,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // ── Classify rows using previousFilter (not DOM state, which can be
         //    mid-animation and unreliable) ──────────────────────────────────────
 
-        // Rows that should be visible in the NEW filter
-        const rowsToShow = Array.from(cinemaRows).filter(row => {
+        // Rows that should be visible in the NEW filter — live query includes CMS-rendered rows
+        const rowsToShow = Array.from(document.querySelectorAll('.cinema-row')).filter(row => {
           const cat = row.getAttribute('data-category');
           return filterValue === 'all' || cat === filterValue;
         });
@@ -690,8 +709,8 @@ document.addEventListener('DOMContentLoaded', () => {
           return previousFilter !== 'all' && cat !== previousFilter;
         });
 
-        // Rows that must leave the screen
-        const rowsToHide = Array.from(cinemaRows).filter(row => {
+        // Rows that must leave the screen — live query includes CMS-rendered rows
+        const rowsToHide = Array.from(document.querySelectorAll('.cinema-row')).filter(row => {
           const cat = row.getAttribute('data-category');
           return filterValue !== 'all' && cat !== filterValue;
         });
@@ -722,21 +741,24 @@ document.addEventListener('DOMContentLoaded', () => {
           rowsToHide.forEach(row => { row.style.display = 'none'; });
         }
 
-        // 3. Make newly-arriving rows visible at opacity:0, then let the
-        //    IntersectionObserver animate them — NO manual rAF loop needed.
-        //    Observer fires naturally when display changes from none → grid.
-        rowsToReveal.forEach(row => {
+        // 3. Make newly-arriving rows visible and animate them directly
+        rowsToReveal.forEach((row, i) => {
+          row.style.display = 'grid';
+          revealedRows.add(row);
           if (window.gsap) {
             window.gsap.killTweensOf(row);
-            // Set to hidden state appropriate for current filter's animation style
+            const children = row.querySelectorAll('.cinema-title-block, .cinema-meta-block');
+            window.gsap.set(children, { opacity: 1, y: 0, overwrite: true });
             const cat = row.getAttribute('data-category');
-            if (filterValue === 'art' || (filterValue === 'all' && cat === 'art')) {
-              window.gsap.set(row, { opacity: 0, filter: 'blur(6px)', x: 0, overwrite: true });
+            if (filterValue === 'art') {
+              animateCinemaRowArt(row, i, i * 0.06);
+            } else if (filterValue === 'film') {
+              animateCinemaRowFilm(row, i, i * 0.06);
             } else {
-              window.gsap.set(row, { opacity: 0, x: 0, filter: 'none', overwrite: true });
+              const globalIndex = Array.from(cinemaRows).indexOf(row);
+              animateCinemaRowAll(row, globalIndex, i * 0.06);
             }
           }
-          row.style.display = 'grid'; // triggers IntersectionObserver
         });
       });
     });
@@ -748,56 +770,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 5. FILM GATE WIPE — each bento card wipes left-to-right individually, re-triggers on scroll
-  const bentoCards = document.querySelectorAll('.bento-card');
-  if (bentoCards.length > 0 && window.gsap) {
-    gsap.set(bentoCards, { clipPath: 'inset(0 100% 0 0)' });
-
-    const gateObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          gsap.to(entry.target, {
-            clipPath: 'inset(0 0% 0 0)',
-            duration: 0.9,
-            ease: 'power3.inOut',
-            overwrite: true
-          });
-        } else {
-          gsap.killTweensOf(entry.target);
-          gsap.set(entry.target, { clipPath: 'inset(0 100% 0 0)' });
-        }
-      });
-    }, { threshold: 0.25 });
-
-    bentoCards.forEach(card => gateObserver.observe(card));
-  }
-
-  // 6. STATEMENT TEXT — each line wipes upward frame by frame, re-triggers on scroll
-  const stmtLines = document.querySelectorAll('.stmt-line');
-  if (stmtLines.length > 0 && window.gsap) {
-    gsap.set(stmtLines, { clipPath: 'inset(110% 0 0 0)' });
-
-    const stmtObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          gsap.to(stmtLines, {
-            clipPath: 'inset(0% 0 0 0)',
-            stagger: 0.18,
-            duration: 1.1,
-            ease: 'power3.out',
-            overwrite: true
-          });
-        } else {
-          gsap.killTweensOf(stmtLines);
-          gsap.set(stmtLines, { clipPath: 'inset(110% 0 0 0)' });
-        }
-      });
-    }, { threshold: 0.3 });
-
-    stmtObserver.observe(document.querySelector('.home-about') || stmtLines[0]);
-  }
-
-  // 7. GSAP CINEMATIC ENTRANCE ANIMATIONS
+  // 5. GSAP CINEMATIC ENTRANCE ANIMATIONS
   if (window.gsap) {
     // Hero Entrance Sequence
     const tl = window.gsap.timeline();

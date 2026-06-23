@@ -87,7 +87,7 @@
     films.forEach(film => {
       const slug = film.id;
       container.innerHTML += `
-        <a class="film-item reveal-element" href="films/${slug}.html">
+        <a class="film-item" href="films/${slug}.html">
           <div class="film-showcase-visual">
             <img src="${film.thumbnail || ''}" alt="${film.title} still" />
           </div>
@@ -106,6 +106,10 @@
     });
     // Re-init lucide icons if present
     if (window.lucide) lucide.createIcons();
+    // Register new film items with the scroll-reveal observer
+    const newItems = container.querySelectorAll('.film-item');
+    if (window.__observeNew) window.__observeNew(newItems);
+    else newItems.forEach(el => el.classList.add('revealed'));
   }
 
   function renderCinematography(entries) {
