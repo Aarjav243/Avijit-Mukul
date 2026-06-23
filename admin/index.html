@@ -215,8 +215,10 @@
         <div class="nav-item active" data-page="homepage"><span class="nav-icon">🏠</span> Homepage</div>
         <div class="nav-item" data-page="about"><span class="nav-icon">👤</span> About</div>
         <div class="nav-item" data-page="contact"><span class="nav-icon">📞</span> Contact</div>
-        <div class="nav-lbl" style="margin-top:.75rem">Films</div>
+        <div class="nav-lbl" style="margin-top:.75rem">Films & Lists</div>
         <div class="nav-item" data-page="films"><span class="nav-icon">🎬</span> Directed Films</div>
+        <div class="nav-item" data-page="cinematography"><span class="nav-icon">🎥</span> Cinematography</div>
+        <div class="nav-item" data-page="writing"><span class="nav-icon">✍️</span> Writing</div>
         <div class="nav-lbl" style="margin-top:.75rem">Settings</div>
         <div class="nav-item" data-page="users"><span class="nav-icon">👥</span> Manage Access</div>
       </div>
@@ -279,6 +281,30 @@
           <div class="fgrp"><label>Paragraph 2</label><textarea id="ab-bio2" rows="4"></textarea></div>
           <div class="fgrp"><label>Paragraph 3</label><textarea id="ab-bio3" rows="3"></textarea></div>
         </div>
+        <div class="card">
+          <div class="card-lbl">Education — Entry 1</div>
+          <div class="grid2">
+            <div class="fgrp"><label>Year</label><input type="text" id="ab-edu1Year" placeholder="1995" /></div>
+            <div class="fgrp"><label>Degree / Title</label><input type="text" id="ab-edu1Title" placeholder="Diploma in Cinema (Cinematography)" /></div>
+          </div>
+          <div class="fgrp"><label>Description</label><textarea id="ab-edu1Desc" rows="2"></textarea></div>
+        </div>
+        <div class="card">
+          <div class="card-lbl">Education — Entry 2</div>
+          <div class="grid2">
+            <div class="fgrp"><label>Year</label><input type="text" id="ab-edu2Year" placeholder="1992" /></div>
+            <div class="fgrp"><label>Degree / Title</label><input type="text" id="ab-edu2Title" placeholder="Bachelors of Arts (Honours) in History" /></div>
+          </div>
+          <div class="fgrp"><label>Description</label><textarea id="ab-edu2Desc" rows="2"></textarea></div>
+        </div>
+        <div class="card">
+          <div class="card-lbl">Curation — Entry 1</div>
+          <div class="grid2">
+            <div class="fgrp"><label>Period / Year</label><input type="text" id="ab-cur1Year" placeholder="Ongoing" /></div>
+            <div class="fgrp"><label>Title</label><input type="text" id="ab-cur1Title" placeholder="Film Programs Curation" /></div>
+          </div>
+          <div class="fgrp"><label>Description</label><textarea id="ab-cur1Desc" rows="3"></textarea></div>
+        </div>
       </div>
 
       <!-- ─ CONTACT ─ -->
@@ -290,6 +316,7 @@
           <button class="btn btn-save" onclick="save('contact')">Save Changes</button>
         </div>
         <div class="card">
+          <div class="fgrp"><label>Intro Paragraph (shown at top of Contact page)</label><textarea id="ct-intro" rows="2"></textarea></div>
           <div class="fgrp"><label>Mailing Address (each line on a new line)</label><textarea id="ct-address" rows="3" placeholder="113, Avon Classic,&#10;Dattapada Road, Borivali (E),&#10;Mumbai, 400066, India"></textarea></div>
           <div class="grid2">
             <div class="fgrp"><label>Phone Number</label><input type="text" id="ct-phone" placeholder="+91-98200-95600" /></div>
@@ -302,13 +329,78 @@
       <!-- ─ FILMS ─ -->
       <div class="page" id="page-films">
         <div class="pg-title">Directed Films</div>
-        <div class="pg-desc">Add, edit or remove films from the Director page.</div>
+        <div class="pg-desc">Edit the intro text and manage films on the Director page.</div>
+        <div class="save-bar">
+          <span class="save-st" id="st-director">No unsaved changes</span>
+          <button class="btn btn-save" onclick="save('director')">Save Intro</button>
+        </div>
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="card-lbl">Page Intro Paragraph</div>
+          <div class="fgrp"><label>Paragraph shown below "Directed Works" heading</label><textarea id="dir-intro" rows="2"></textarea></div>
+        </div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
           <button class="btn btn-add" onclick="openModal(null)">+ Add New Film</button>
           <button class="btn btn-ghost" style="font-size:.78rem;padding:.4rem .9rem;" onclick="seedFilms()" title="Populate films from the original site data">↺ Load Default Films</button>
         </div>
         <div id="films-loading" class="loading">Loading films…</div>
         <div class="films-grid" id="films-grid" style="display:none"></div>
+      </div>
+
+      <!-- ─ CINEMATOGRAPHY ─ -->
+      <div class="page" id="page-cinematography">
+        <div class="pg-title">Cinematography</div>
+        <div class="pg-desc">Edit the intro text and manage entries on the Collaborative Works page.</div>
+        <div class="save-bar">
+          <span class="save-st" id="st-cinematographer">No unsaved changes</span>
+          <button class="btn btn-save" onclick="save('cinematographer')">Save Intro</button>
+        </div>
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="card-lbl">Page Intro Paragraph</div>
+          <div class="fgrp"><label>Paragraph shown at top of Cinematography page</label><textarea id="cine-intro-field" rows="2"></textarea></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:1.25rem;">
+          <button class="btn btn-ghost" style="font-size:.78rem;padding:.4rem .9rem;" onclick="seedCinematography()">↺ Load Default Entries</button>
+        </div>
+
+        <!-- Section 1: Documentary & Fiction -->
+        <div class="card" style="margin-bottom:1.1rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+            <div class="card-lbl" style="margin:0">Documentary & Fiction Films</div>
+            <button class="btn btn-add" style="font-size:.78rem;padding:.4rem .9rem;" onclick="openCineModal(null,'film')">+ Add</button>
+          </div>
+          <div id="cine-film-loading" class="loading" style="padding:.5rem">Loading…</div>
+          <div id="cine-film-list" style="display:none"></div>
+        </div>
+
+        <!-- Section 2: Visual Art Projects -->
+        <div class="card" style="margin-bottom:1.1rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+            <div class="card-lbl" style="margin:0">Visual Art Projects</div>
+            <button class="btn btn-add" style="font-size:.78rem;padding:.4rem .9rem;" onclick="openCineModal(null,'art')">+ Add</button>
+          </div>
+          <div id="cine-art-loading" class="loading" style="padding:.5rem">Loading…</div>
+          <div id="cine-art-list" style="display:none"></div>
+        </div>
+      </div>
+
+      <!-- ─ WRITING ─ -->
+      <div class="page" id="page-writing">
+        <div class="pg-title">Writing</div>
+        <div class="pg-desc">Edit the intro text and manage articles on the Writing page.</div>
+        <div class="save-bar">
+          <span class="save-st" id="st-writing">No unsaved changes</span>
+          <button class="btn btn-save" onclick="save('writing')">Save Intro</button>
+        </div>
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="card-lbl">Page Intro Paragraph</div>
+          <div class="fgrp"><label>Paragraph shown at top of Writing page</label><textarea id="writing-intro-field" rows="2"></textarea></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+          <button class="btn btn-add" onclick="openWriteModal(null)">+ Add New Article</button>
+          <button class="btn btn-ghost" style="font-size:.78rem;padding:.4rem .9rem;" onclick="seedWriting()">↺ Load Default Articles</button>
+        </div>
+        <div id="write-loading" class="loading">Loading…</div>
+        <div id="write-list" style="display:none"></div>
       </div>
 
       <!-- ─ USERS ─ -->
@@ -372,6 +464,57 @@
     <div class="modal-ft">
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
       <button class="btn btn-save" onclick="saveFilm()">Save Film</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CINEMATOGRAPHY MODAL ════════════ -->
+<div class="overlay" id="cine-overlay">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title" id="cine-modal-title">Edit Entry</div>
+      <button class="modal-x" onclick="closeCineModal()">✕</button>
+    </div>
+    <div class="fgrp"><label>Title *</label><input type="text" id="cm-title" placeholder="John and Jane" /></div>
+    <div class="grid2">
+      <div class="fgrp"><label>Director / Collaborator</label><input type="text" id="cm-director" placeholder="Directed by Ashim Ahluwalia" /></div>
+      <div class="fgrp"><label>Role</label><input type="text" id="cm-role" placeholder="Cinematographer" /></div>
+    </div>
+    <div class="grid2">
+      <div class="fgrp">
+        <label>Category</label>
+        <select id="cm-category">
+          <option value="film">Documentary & Fiction</option>
+          <option value="art">Visual Art Project</option>
+        </select>
+      </div>
+      <div class="fgrp"><label>Sort Order</label><input type="number" id="cm-order" placeholder="1" min="1" /></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeCineModal()">Cancel</button>
+      <button class="btn btn-save" onclick="saveCineEntry()">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ WRITING MODAL ═══════════════════ -->
+<div class="overlay" id="write-overlay">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title" id="write-modal-title">Edit Article</div>
+      <button class="modal-x" onclick="closeWriteModal()">✕</button>
+    </div>
+    <div class="grid2">
+      <div class="fgrp"><label>Publisher / Publication</label><input type="text" id="wm-publisher" placeholder="Critical Collective" /></div>
+      <div class="fgrp"><label>Year</label><input type="text" id="wm-year" placeholder="2022" /></div>
+    </div>
+    <div class="fgrp"><label>Title *</label><input type="text" id="wm-title" placeholder="Article title…" /></div>
+    <div class="fgrp"><label>Description</label><textarea id="wm-desc" rows="3"></textarea></div>
+    <div class="fgrp"><label>Link URL (leave # if no link yet)</label><input type="text" id="wm-link" placeholder="#" /></div>
+    <div class="fgrp"><label>Sort Order (1 = shown first)</label><input type="number" id="wm-order" placeholder="1" min="1" /></div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeWriteModal()">Cancel</button>
+      <button class="btn btn-save" onclick="saveWriteEntry()">Save Article</button>
     </div>
   </div>
 </div>
@@ -444,10 +587,49 @@ document.querySelectorAll('.nav-item').forEach(item => {
     item.classList.add('active');
     const pg = item.dataset.page;
     document.getElementById('page-' + pg).classList.add('active');
-    if (pg === 'films') loadFilms();
-    if (pg === 'users') loadUsers();
+    if (pg === 'films')          loadFilms();
+    if (pg === 'cinematography') loadCinematography();
+    if (pg === 'writing')        loadWriting();
+    if (pg === 'users')          loadUsers();
   });
 });
+
+// ── Defaults (current website content) ───────────────
+const DEFAULTS = {
+  homepage: {
+    heroRole:  'Filmmaker & Cinematographer',
+    heroDesc:  'Based in Mumbai. Works in documentary and moving-image practice. Also teaches and curates film programmes.',
+    statement: 'Twenty years of work in non-fiction film, cinema pedagogy, and moving-image archives in India.',
+    stat1: '11', stat2: '50+', stat3: '20+'
+  },
+  about: {
+    bio1: 'Avijit Mukul Kishore is a filmmaker and cinematographer based in Mumbai. He works primarily in documentary and inter-disciplinary moving-image practice. He has made eleven documentary films as director and worked on several others as cinematographer. He has shot one fiction feature and worked on television talk shows and advertising films.',
+    bio2: 'Kishore has been involved in cinema pedagogy as a lecturer and curator of film programmes for over two decades. He has worked with state film and media archives and is interested in the non-fiction film form and moving-image history.',
+    bio3: 'Before directing, he worked as a broadcaster on state radio and television for five years and was a member of two theatre groups in Delhi.',
+    edu1Year: '1995', edu1Title: 'Diploma in Cinema (Cinematography)',
+    edu1Desc: 'Film and Television Institute of India, Pune. Specialization in cinema pedagogy, moving-image capture, lighting design, and camera choreography.',
+    edu2Year: '1992', edu2Title: 'Bachelors of Arts (Honours) in History',
+    edu2Desc: 'Hindu College, University of Delhi. Focused on modern Indian history, archive study, and post-colonial cultural identity research.',
+    cur1Year: 'Ongoing', cur1Title: 'Film Programs Curation',
+    cur1Desc: 'Over two decades curating public film exhibitions, archive retrospective selections, and pedagogical workshops on documentary forms across academic institutions in India and internationally.'
+  },
+  contact: {
+    intro:        'For teaching, cinematography, curatorial or project enquiries, use the form below or write directly.',
+    address:      '113, Avon Classic,\nDattapada Road, Borivali (E),\nMumbai, 400066, India',
+    phone:        '+91-98200-95600',
+    email:        'avimuk@gmail.com',
+    professional: 'Member of VisionMix, a prominent collective of visual art practitioners across the UK and India.'
+  },
+  director: {
+    intro: 'An overview of twelve directed documentary films exploring themes of identity, modern architecture, memory, queer voices, and artistic transitions in post-colonial India.'
+  },
+  cinematographer: {
+    intro: 'In addition to directing, Kishore works extensively as a cinematographer on documentary, fiction, and inter-disciplinary visual art projects, collaborating with prominent filmmakers, artists, and state archives.'
+  },
+  writing: {
+    intro: 'A collection of academic essays, analytical reviews, and historical notes investigating moving-image aesthetics, modern state propaganda, and imaging technology in India.'
+  }
+};
 
 // ── Load All Text Content ─────────────────────────────
 async function loadAllContent() {
@@ -457,18 +639,33 @@ async function loadAllContent() {
       db.collection('content').doc('about').get(),
       db.collection('content').doc('contact').get()
     ]);
-    if (hp.exists) { const d = hp.data();
-      set('hp-heroRole', d.heroRole); set('hp-heroDesc', d.heroDesc);
-      set('hp-statement', d.statement);
-      set('hp-stat1', d.stat1); set('hp-stat2', d.stat2); set('hp-stat3', d.stat3);
-    }
-    if (ab.exists) { const d = ab.data();
-      set('ab-bio1', d.bio1); set('ab-bio2', d.bio2); set('ab-bio3', d.bio3);
-    }
-    if (ct.exists) { const d = ct.data();
-      set('ct-address', d.address); set('ct-phone', d.phone);
-      set('ct-email', d.email);     set('ct-professional', d.professional);
-    }
+    const hd = hp.exists ? hp.data() : DEFAULTS.homepage;
+    set('hp-heroRole', hd.heroRole); set('hp-heroDesc', hd.heroDesc);
+    set('hp-statement', hd.statement);
+    set('hp-stat1', hd.stat1); set('hp-stat2', hd.stat2); set('hp-stat3', hd.stat3);
+
+    const ad = ab.exists ? ab.data() : DEFAULTS.about;
+    set('ab-bio1', ad.bio1); set('ab-bio2', ad.bio2); set('ab-bio3', ad.bio3);
+    set('ab-edu1Year', ad.edu1Year); set('ab-edu1Title', ad.edu1Title); set('ab-edu1Desc', ad.edu1Desc);
+    set('ab-edu2Year', ad.edu2Year); set('ab-edu2Title', ad.edu2Title); set('ab-edu2Desc', ad.edu2Desc);
+    set('ab-cur1Year', ad.cur1Year); set('ab-cur1Title', ad.cur1Title); set('ab-cur1Desc', ad.cur1Desc);
+
+    const cd = ct.exists ? ct.data() : DEFAULTS.contact;
+    set('ct-intro', cd.intro); set('ct-address', cd.address);
+    set('ct-phone', cd.phone); set('ct-email', cd.email);
+    set('ct-professional', cd.professional);
+
+    const [dirDoc, cineDoc, writeDoc] = await Promise.all([
+      db.collection('content').doc('director').get(),
+      db.collection('content').doc('cinematographer').get(),
+      db.collection('content').doc('writing').get()
+    ]);
+    const dd = dirDoc.exists  ? dirDoc.data()  : DEFAULTS.director;
+    const nd = cineDoc.exists ? cineDoc.data() : DEFAULTS.cinematographer;
+    const wd = writeDoc.exists? writeDoc.data(): DEFAULTS.writing;
+    set('dir-intro',           dd.intro);
+    set('cine-intro-field',    nd.intro);
+    set('writing-intro-field', wd.intro);
   } catch (e) { console.warn('load content', e); }
 }
 function set(id, val) { const el = document.getElementById(id); if (el && val != null) el.value = val; }
@@ -480,8 +677,16 @@ async function save(section) {
   st.textContent = 'Saving…'; st.className = 'save-st saving';
   let data = {};
   if (section === 'homepage') data = { heroRole: get('hp-heroRole'), heroDesc: get('hp-heroDesc'), statement: get('hp-statement'), stat1: get('hp-stat1'), stat2: get('hp-stat2'), stat3: get('hp-stat3') };
-  if (section === 'about')    data = { bio1: get('ab-bio1'), bio2: get('ab-bio2'), bio3: get('ab-bio3') };
-  if (section === 'contact')  data = { address: get('ct-address'), phone: get('ct-phone'), email: get('ct-email'), professional: get('ct-professional') };
+  if (section === 'about')    data = {
+    bio1: get('ab-bio1'), bio2: get('ab-bio2'), bio3: get('ab-bio3'),
+    edu1Year: get('ab-edu1Year'), edu1Title: get('ab-edu1Title'), edu1Desc: get('ab-edu1Desc'),
+    edu2Year: get('ab-edu2Year'), edu2Title: get('ab-edu2Title'), edu2Desc: get('ab-edu2Desc'),
+    cur1Year: get('ab-cur1Year'), cur1Title: get('ab-cur1Title'), cur1Desc: get('ab-cur1Desc')
+  };
+  if (section === 'contact')       data = { intro: get('ct-intro'), address: get('ct-address'), phone: get('ct-phone'), email: get('ct-email'), professional: get('ct-professional') };
+  if (section === 'director')      data = { intro: get('dir-intro') };
+  if (section === 'cinematographer') data = { intro: get('cine-intro-field') };
+  if (section === 'writing')       data = { intro: get('writing-intro-field') };
   try {
     await db.collection('content').doc(section).set(data, { merge: true });
     st.textContent = '✓ Saved'; st.className = 'save-st saved';
@@ -614,17 +819,17 @@ async function seedFilms() {
   toast('Loading default films…', 'info');
   const defaults = [
     { id:'a-minuscule-minority', order:1, title:'A Minuscule Minority', year:'2025', duration:'74 min', format:'4K Video', language:'Eng, Hin, Mar', desc:'A documentary on queer voices and their relationship to Indian electoral politics.', venues:'International Documentary and Short Film Festival of Kerala (IDSFFK), Trivandrum', thumbnail:'https://i.vimeocdn.com/video/2147977238-1bc35ad8d578c50a8bbbd9b2486dd05e37633149d94355c6611400998aefd25f-d_1280?region=us' },
-    { id:'an-election-diary', order:2, title:'An Election Diary', year:'2023', duration:'32 min', format:'4K Video', language:'Hindi', desc:'A documentary filmed during state assembly elections in northern India.', venues:'Centre for Modern Indian Studies, University of Gottingen, Germany · IDSFFK Kerala, Trivandrum', thumbnail:'https://i.vimeocdn.com/video/860678510-0aa9981a1807ce3c407052bdcbc8db3ec888f17cde624e7ee6c7971015772eaa-d_1280?region=us' },
-    { id:'lovely-villa', order:3, title:'Lovely Villa', year:'2019', duration:'32 min', format:'HD Video', language:'', desc:'A film on a modernist house in suburban Mumbai, tracing its design and the family memories associated with it. Co-directed with Rohan Shivkumar.', venues:'Urban Lens Festival (Delhi & Bangalore) · PSBT Open Frame · Kalaghoda Art Festival · Nomad Cafe · Arthshila, Santiniketan', thumbnail:'https://i.vimeocdn.com/video/1177656341-bcbc66121c442301c835dd34ae67d71f1f1bbfd68b722fc861571742fbd54462-d_1280?region=us' },
-    { id:'squeeze-lime-in-your-eye', order:4, title:'Squeeze Lime in Your Eye', year:'2018', duration:'58 min', format:'HD Video', language:'Eng, Hin, Ben', desc:'A documentary on art education and visual practice in India, shot across several art institutions.', venues:'Kochi-Muziris Biennale · Urban Lens Festival · PSBT Open Frame Festival · Chatterjee and Lal Art Gallery · Nomad Cafe', thumbnail:'https://i.vimeocdn.com/video/907768708-42ec80b89b8e0191a16edd55d0e41424c41bcf36127f073763917a637dfd9469-d_1280?region=us' },
-    { id:'the-garden-of-forgotten-snow', order:5, title:'The Garden of Forgotten Snow', year:'2017', duration:'30 min', format:'', language:'', desc:'An experimental film on art, identity and landscape. Sits between documentary and visual art practice.', venues:'Best Experimental Documentary (Signs Film Festival, Thrissur) · Documenta Madrid · Kochi-Muziris Biennale · Films on Art Portugal, Lisbon · IDSFFK Kerala · Gallery Chemould', thumbnail:'https://i.vimeocdn.com/video/768071944-6b4e84aa253b168681bef2e0e631076c9d281b359dbb75e7818db22065294d37-d_1280?region=us' },
-    { id:'nostalgia-for-the-future', order:6, title:'Nostalgia for the Future', year:'2017', duration:'54 min', format:'HD Video & 16mm Film', language:'', desc:'A documentary on the architecture of the modern Indian state — planned cities and institutional buildings. Co-directed with Rohan Shivkumar.', venues:'Best Documentary Award (IDSFFK Kerala) · Jury\'s Special Mention (Signs Film Festival) · Sharjah Architecture Triennial · Chicago Architecture Biennial · Pinakothek Der Moderne, Munich · Documenta 14', thumbnail:'https://i.vimeocdn.com/video/610058466-6f21f544c6cce83220bdbef1f98e0aecd09cdd911b10ab2a8384a865b6e46d79-d?f=webp&region=us' },
-    { id:'electric-shadows', order:7, title:'Electric Shadows', year:'2016', duration:'45 min', format:'HD Video', language:'Eng, Hin, Man', desc:'A documentary on the history of cinema projection and image-making, tracing practitioners across India and China.', venues:'Urban Lens Festival, Bangalore · PSBT Open Frame, Delhi · National Film Archive of India (NFAI), Pune', thumbnail:'https://i.vimeocdn.com/video/570856999-1d9c443217e1af51d0cfece7f3da66dd32577fcc89ea56e568fc66305d592e3c-d?f=webp&region=us' },
-    { id:'jaya-he-new-museum', order:8, title:'Jaya He New Museum', year:'2015', duration:'Multi-part series', format:'10 Short Films', language:'', desc:'A multi-part documentary project made for the GVK Museum at Mumbai Airport Terminal 2.', venues:'Permanent museum video installations and archive documentaries for the GVK Jaya He Airport Museum.', thumbnail:'https://i.vimeocdn.com/video/708456191-a469b4da188b5128f62dc9b6253913b9919d824657ca778536fb46367f55e5f0-d_1280?region=us' },
-    { id:'to-let-the-world-in', order:9, title:'To Let the World In (Volume I & II)', year:'2012–2013', duration:'93 & 53 min', format:'', language:'', desc:'A two-volume documentary on three generations of modern and contemporary visual art practice in India.', venues:'Audience Prize (Sheffield Doc/fest, UK) · APSA Nominated (Melbourne) · Mumbai International Film Festival · Tempo Film Festival, Stockholm · Asia Art Archive, Hong Kong · NGMA Mumbai', thumbnail:'https://i.vimeocdn.com/video/439136402-34cdac357acdb9b59821cea4bb735f80b24c73af0de5cb9440c94435804d6302-d?f=webp&region=us' },
-    { id:'vertical-city', order:10, title:'Vertical City', year:'2011', duration:'34 min', format:'HD Video', language:'Hindi, English', desc:'A documentary on Mumbai\'s slum rehabilitation programme and the conditions of life it produces in high-rise towers.', venues:'Special Jury Mention (IDSFFK Kerala) · Special Jury Mention (London International Doc Festival) · Melbourne International Film Festival · CPH DOX, Copenhagen · Sheffield Doc/fest · Dok-Leipzig', thumbnail:'https://i.vimeocdn.com/video/467134488-dbda31725a5539d9cd6537e9ecf04a6e9753bb1455547b4b2a737c6e8c26db9c-d_1280?region=us' },
-    { id:'certified-universal', order:11, title:'Certified Universal', year:'2009', duration:'15 min', format:'HD Video', language:'Hindi, Marathi, English', desc:'A short documentary on film certification and public exhibition in India. Selected for Forum Expanded, Berlinale.', venues:'Forum Expanded, Berlinale · National Gallery of Modern Art (Mumbai, Delhi, Bangalore) · IDSFFK Kerala · Indo American Arts Council, New York · Prague Indian Film Festival', thumbnail:'https://i.vimeocdn.com/video/439397741-aefc08b6e684ae00ef5cfa0c4f2d61f2a6b8dc8bc463fb2db7b2b464c88e6266-d?f=webp&region=us' },
-    { id:'snapshots-from-a-family-album', order:12, title:'Snapshots from a Family Album', year:'2004', duration:'63 min', format:'Digital Video', language:'Hindi, English', desc:'A documentary tracing personal and social histories through family photographs.', venues:'Hong Kong Arts Centre · Korean National University of Arts, Seoul · Kino Arsenal & Deutsche Guggenheim, Berlin · Bangalore Queer Film Festival · Sommerszene Vienna · NFAI Pune', thumbnail:'https://i.vimeocdn.com/video/439443051-251aaa34087344fa1a62b0f70ff8dc47ae87ad062c93391266e14d93b25a89a6-d_960?region=us' }
+    { id:'an-election-diary', order:2, title:'An Election Diary', year:'2023', duration:'32 min', format:'4K Video', language:'Hindi', desc:'A documentary filmed during state assembly elections in northern India.', venues:'Centre for Modern Indian Studies, University of Göttingen, Germany · International Documentary and Short Film Festival of Kerala (IDSFFK), Trivandrum', thumbnail:'https://i.vimeocdn.com/video/860678510-0aa9981a1807ce3c407052bdcbc8db3ec888f17cde624e7ee6c7971015772eaa-d_1280?region=us' },
+    { id:'lovely-villa', order:3, title:'Lovely Villa', year:'2019', duration:'32 min', format:'HD Video', language:'', desc:'A film on a modernist house in suburban Mumbai, tracing its design and the family memories associated with it. Co-directed with Rohan Shivkumar.', venues:'Urban Lens Festival, Delhi & Bangalore · PSBT Open Frame Festival, Delhi · Kala Ghoda Art Festival, Mumbai, 2019 · Nomad Cafe, Ahmedabad · Arthshila, Santiniketan', thumbnail:'https://i.vimeocdn.com/video/1177656341-bcbc66121c442301c835dd34ae67d71f1f1bbfd68b722fc861571742fbd54462-d_1280?region=us' },
+    { id:'squeeze-lime-in-your-eye', order:4, title:'Squeeze Lime in Your Eye', year:'2018', duration:'58 min', format:'HD Video', language:'Eng, Hin, Ben', desc:'A documentary on art education and visual practice in India, shot across several art institutions.', venues:'Kochi-Muziris Biennale · Urban Lens Festival, Delhi & Mumbai · PSBT Open Frame Festival, Delhi · Kala Ghoda Art Festival, Mumbai · Chatterjee and Lal, Art Gallery, Mumbai · Nomad Cafe, Ahmedabad', thumbnail:'https://i.vimeocdn.com/video/907768708-42ec80b89b8e0191a16edd55d0e41424c41bcf36127f073763917a637dfd9469-d_1280?region=us' },
+    { id:'the-garden-of-forgotten-snow', order:5, title:'The Garden of Forgotten Snow', year:'2017', duration:'30 min', format:'', language:'', desc:'An experimental film on art, identity and landscape. Sits between documentary and visual art practice.', venues:'Best Experimental Documentary — Signs Film Festival, Thrissur · Documenta Madrid · Kochi-Muziris Biennale · Films on Art Portugal, Lisbon · IDSFFK Kerala, Trivandrum · Signs Film Festival, Trivandrum · India International Centre, Delhi · Gallery Chemould, Mumbai · Kalabhavana, Santiniketan', thumbnail:'https://i.vimeocdn.com/video/768071944-6b4e84aa253b168681bef2e0e631076c9d281b359dbb75e7818db22065294d37-d_1280?region=us' },
+    { id:'nostalgia-for-the-future', order:6, title:'Nostalgia for the Future', year:'2017', duration:'54 min', format:'HD Video & 16mm Film', language:'', desc:'A documentary on the architecture of the modern Indian state — planned cities and institutional buildings. Co-directed with Rohan Shivkumar.', venues:'Best Documentary Award — IDSFFK Kerala · Jury\'s Special Mention — Signs Film Festival, Thrissur, 2017 · Sharjah Architecture Triennial · Chicago Architecture Biennial · Pinakothek der Moderne, Munich · Documenta 14, Athens · Dhaka Art Summit · IDSFFK Kerala, Trivandrum · Signs Film Festival, Trivandrum · Arthshila, Santiniketan · NFAI Film Appreciation Course, Pune', thumbnail:'https://i.vimeocdn.com/video/610058466-6f21f544c6cce83220bdbef1f98e0aecd09cdd911b10ab2a8384a865b6e46d79-d?f=webp&region=us' },
+    { id:'electric-shadows', order:7, title:'Electric Shadows', year:'2016', duration:'45 min', format:'HD Video', language:'Eng, Hin, Man', desc:'A documentary on the history of cinema projection and image-making, tracing practitioners across India and China.', venues:'Urban Lens Festival, Bangalore · PSBT Open Frame Festival, Delhi · Film Appreciation Course, National Film Archive of India, Pune', thumbnail:'https://i.vimeocdn.com/video/570856999-1d9c443217e1af51d0cfece7f3da66dd32577fcc89ea56e568fc66305d592e3c-d?f=webp&region=us' },
+    { id:'jaya-he-new-museum', order:8, title:'Jaya He New Museum', year:'2015', duration:'Multi-part series', format:'10 Short Films', language:'', desc:'A multi-part documentary project made for the GVK Museum at Mumbai Airport Terminal 2.', venues:'Permanent video installations and archive documentaries for the GVK Jaya He Airport Museum, Mumbai Airport Terminal 2', thumbnail:'https://i.vimeocdn.com/video/708456191-a469b4da188b5128f62dc9b6253913b9919d824657ca778536fb46367f55e5f0-d_1280?region=us' },
+    { id:'to-let-the-world-in', order:9, title:'To Let the World In (Volume I & II)', year:'2012–2013', duration:'93 & 53 min', format:'', language:'', desc:'A two-volume documentary on three generations of modern and contemporary visual art practice in India.', venues:'Audience Prize — Sheffield Doc/fest, UK · Nominated — Asia Pacific Screen Awards, Melbourne · Mumbai International Film Festival · Tempo Film Festival, Stockholm · Films on Art Portugal, Lisbon · Sheffield Doc/fest · Centre of South Asian Studies, University of Cambridge · Asia Art Archive & Asia Society, Hong Kong · Hanart Gallery, Hong Kong · Goa Art & Literary Festival · IDSFFK, Trivandrum · NFAI Pune · JNU Delhi · India Habitat Centre · MCRC, Jamia Millia Islamia · Dharamshala International Film Festival · British Council Chandigarh · NGMA Mumbai · Ian Potter Museum of Art, Melbourne Festival · Art Chennai · Kalabhavana, Santiniketan · Faculty of Fine Arts, Baroda · IIHS Bangalore', thumbnail:'https://i.vimeocdn.com/video/439136402-34cdac357acdb9b59821cea4bb735f80b24c73af0de5cb9440c94435804d6302-d?f=webp&region=us' },
+    { id:'vertical-city', order:10, title:'Vertical City', year:'2011', duration:'34 min', format:'HD Video', language:'Hindi, English', desc:'A documentary on Mumbai\'s slum rehabilitation programme and the conditions of life it produces in high-rise towers.', venues:'Special Jury Mention — IDSFFK Kerala, Trivandrum · Special Jury Mention — London International Documentary Festival · Melbourne International Film Festival · CPH DOX, Copenhagen · Sheffield Doc/fest · Dok-Leipzig · IFFI Goa · INIVA, London · Experimenta India · PSBT Open Frame, Delhi · VIBGYOR Film Festival, Thrissur (Closing Film) · Signs Film Festival, Trivandrum · French Embassy Cultural Centres (Delhi, Mumbai, Ahmedabad, Chandigarh, Bangalore, Chennai, Goa) · Persistence Resistance Film Festival, Delhi · Vikalp Mumbai', thumbnail:'https://i.vimeocdn.com/video/467134488-dbda31725a5539d9cd6537e9ecf04a6e9753bb1455547b4b2a737c6e8c26db9c-d_1280?region=us' },
+    { id:'certified-universal', order:11, title:'Certified Universal', year:'2009', duration:'15 min', format:'HD Video', language:'Hindi, Marathi, English', desc:'A short documentary on film certification and public exhibition in India. Selected for Forum Expanded, Berlinale.', venues:'Forum Expanded, Berlinale · National Gallery of Modern Art (Mumbai, Delhi, Bangalore) · IDSFFK Kerala, Trivandrum · Indo American Arts Council, New York · Prague Indian Film Festival · Kala Ghoda Art Festival, Mumbai · National Centre for the Performing Arts, Mumbai', thumbnail:'https://i.vimeocdn.com/video/439397741-aefc08b6e684ae00ef5cfa0c4f2d61f2a6b8dc8bc463fb2db7b2b464c88e6266-d?f=webp&region=us' },
+    { id:'snapshots-from-a-family-album', order:12, title:'Snapshots from a Family Album', year:'2004', duration:'63 min', format:'Digital Video', language:'Hindi, English', desc:'A documentary tracing personal and social histories through family photographs.', venues:'Hong Kong Arts Centre · Korean National University of Arts, Seoul · Kino Arsenal & Deutsche Guggenheim, Berlin · Persisting Visions (Beijing, Shanghai, Guangzhou, Kunming, Hong Kong) · Bangalore Queer Film Festival · Sommerszene Vienna · Video as Urban Condition Project, Linz · Lille 3000, Lille · Amsterdam India Festival · Film South Asia, Kathmandu · Cinema Nova, Brussels · NFAI Pune · Prague India Film Festival · Bollywood and Beyond, Stuttgart · Experimenta India · NCPA Mumbai', thumbnail:'https://i.vimeocdn.com/video/439443051-251aaa34087344fa1a62b0f70ff8dc47ae87ad062c93391266e14d93b25a89a6-d_960?region=us' }
   ];
   try {
     const batch = db.batch();
@@ -694,6 +899,253 @@ async function removeUser(docId, email) {
   if (!confirm('Remove access for ' + email + '?\nThey will no longer be able to log in.')) return;
   try { await db.collection('admins').doc(docId).delete(); toast('User removed', 'ok'); loadUsers(); }
   catch (e) { toast('Error: ' + e.message, 'fail'); }
+}
+
+// ── Cinematography ────────────────────────────────────
+let editingCineId = null;
+let cineCache     = {};
+
+function renderCineSection(entries, listId, loadingId, emptyMsg) {
+  const list = document.getElementById(listId);
+  const loading = document.getElementById(loadingId);
+  list.innerHTML = '';
+  if (!entries.length) {
+    loading.textContent = emptyMsg; loading.style.display = 'block'; list.style.display = 'none'; return;
+  }
+  entries.forEach(([id, d]) => {
+    const safeId    = id.replace(/'/g,"\\'");
+    const safeTitle = (d.title||'').replace(/'/g,"\\'");
+    list.innerHTML += `<div class="user-item" style="padding:.65rem .9rem;">
+      <div style="flex:1;min-width:0">
+        <div class="ui-email">${d.title || '—'}</div>
+        <div class="ui-role">${d.director || ''}</div>
+      </div>
+      <div style="display:flex;gap:.35rem;flex-shrink:0">
+        <button class="btn btn-edit-sm" style="font-size:.73rem;padding:.28rem .7rem" onclick="openCineModal('${safeId}')">Edit</button>
+        <button class="btn btn-danger" onclick="delCineEntry('${safeId}','${safeTitle}')">Delete</button>
+      </div>
+    </div>`;
+  });
+  loading.style.display = 'none'; list.style.display = 'block';
+}
+
+async function loadCinematography() {
+  ['cine-film','cine-art'].forEach(p => {
+    document.getElementById(p+'-loading').textContent = 'Loading…';
+    document.getElementById(p+'-loading').style.display = 'block';
+    document.getElementById(p+'-list').style.display = 'none';
+  });
+  try {
+    const snap = await db.collection('cinematography').orderBy('order').get();
+    cineCache = {};
+    const filmEntries = [], artEntries = [];
+    snap.forEach(doc => {
+      cineCache[doc.id] = doc.data();
+      const d = doc.data();
+      if (d.category === 'art') artEntries.push([doc.id, d]);
+      else filmEntries.push([doc.id, d]);
+    });
+    renderCineSection(filmEntries, 'cine-film-list', 'cine-film-loading', 'No entries yet. Click "+ Add".');
+    renderCineSection(artEntries,  'cine-art-list',  'cine-art-loading',  'No entries yet. Click "+ Add".');
+  } catch(e) {
+    ['cine-film-loading','cine-art-loading'].forEach(id => { document.getElementById(id).textContent = 'Error: ' + e.message; });
+  }
+}
+
+function openCineModal(id, defaultCategory) {
+  editingCineId = id;
+  document.getElementById('cine-modal-title').textContent = id ? 'Edit Entry' : 'Add New Entry';
+  ['cm-title','cm-director','cm-role','cm-order'].forEach(fid => document.getElementById(fid).value = '');
+  document.getElementById('cm-category').value = defaultCategory || 'film';
+  if (id && cineCache[id]) {
+    const d = cineCache[id];
+    set('cm-title', d.title); set('cm-director', d.director);
+    set('cm-role', d.role);   set('cm-order', d.order);
+    document.getElementById('cm-category').value = d.category || 'film';
+  }
+  document.getElementById('cine-overlay').classList.add('open');
+}
+function closeCineModal() { document.getElementById('cine-overlay').classList.remove('open'); editingCineId = null; }
+
+async function saveCineEntry() {
+  const title = get('cm-title');
+  if (!title) { toast('Title is required', 'fail'); return; }
+  const data = { title, director: get('cm-director'), role: get('cm-role'),
+    category: document.getElementById('cm-category').value,
+    order: parseInt(get('cm-order')) || 99,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+  try {
+    const id = editingCineId || title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    await db.collection('cinematography').doc(id).set(data, { merge: true });
+    closeCineModal(); toast('Entry saved!', 'ok'); loadCinematography();
+  } catch(e) { toast('Error: ' + e.message, 'fail'); }
+}
+
+async function delCineEntry(id, title) {
+  if (!confirm('Delete "' + title + '"?')) return;
+  try { await db.collection('cinematography').doc(id).delete(); toast('Deleted', 'ok'); loadCinematography(); }
+  catch(e) { toast('Error: ' + e.message, 'fail'); }
+}
+
+async function seedCinematography() {
+  if (!confirm('Load all default cinematography entries?\nExisting entries will not be overwritten.')) return;
+  toast('Loading…', 'info');
+  const films = [
+    {order:1,title:'Hopes and Fears',director:'Directed by Malati Rao',role:'Cinematographer',category:'film'},
+    {order:2,title:'Untitled Film on History of Queer Activism',director:'Directed by Malati Rao',role:'Cinematographer',category:'film'},
+    {order:3,title:'Untitled Film on Mental Health',director:'Directed by Malati Rao',role:'Cinematographer',category:'film'},
+    {order:4,title:'Working Girls',director:'Directed by Paromita Vohra',role:'Cinematographer',category:'film'},
+    {order:5,title:'John and Jane',director:'Directed by Ashim Ahluwalia',role:'Cinematographer',category:'film'},
+    {order:6,title:'An Old Dog\'s Diary',director:'Directed by Shai Heredia & Shumona Goel',role:'Cinematographer',category:'film'},
+    {order:7,title:'I Am Micro',director:'Directed by Shai Heredia & Shumona Goel',role:'Cinematographer',category:'film'},
+    {order:8,title:'Seven Islands and a Metro',director:'Directed by Madhusree Dutta',role:'Cinematographer',category:'film'},
+    {order:9,title:'War and Peace',director:'Directed by Anand Patwardhan',role:'Cinematographer',category:'film'},
+    {order:10,title:'Morality TV and the Loving Jihad',director:'Directed by Paromita Vohra',role:'Cinematographer',category:'film'},
+    {order:11,title:'Tangaliya',director:'Directed by Prachee Bajania',role:'Cinematographer',category:'film'},
+    {order:12,title:'Bidesia in Bambai',director:'Directed by Surabhi Sharma',role:'Cinematographer',category:'film'},
+    {order:13,title:'Water and the City',director:'Directed by Swati Dandekar',role:'Cinematographer',category:'film'},
+    {order:14,title:'Kumar Talkies',director:'Directed by Pankaj Rishi Kumar',role:'Cinematographer',category:'film'},
+    {order:15,title:'Kekoo\'s World',director:'Directed by Behroze Gandhi',role:'Cinematographer',category:'film'},
+    {order:16,title:'India\'s Space Dreams',director:'Directed by Sue Sudbury',role:'Cinematographer',category:'film'},
+    {order:17,title:'Palace of Horrors',director:'Directed by Ashim Ahluwalia',role:'Cinematographer',category:'film'},
+    {order:18,title:'Rehearsals for Tomorrow',director:'Directed by Ein Lall',role:'Cinematographer',category:'film'},
+    {order:19,title:'The Immortals',director:'Directed by Shivendra Singh Dungarpur',role:'Cinematographer',category:'film'},
+    {order:20,title:'Tracing Bylanes',director:'Directed by Surabhi Sharma',role:'Cinematographer',category:'film'},
+    {order:21,title:'The Story of a Municipality',director:'Directed by Swati Dandekar',role:'Cinematographer',category:'film'},
+    {order:22,title:'Bridges of Hope',director:'Directed by Sridhar Rangayan',role:'Cinematographer',category:'film'},
+    {order:23,title:'State of the World',director:'Directed by Ayisha Abraham',role:'Cinematographer',category:'film'},
+    {order:24,title:'Scribbles on Akka',director:'Directed by Madhusree Dutta',role:'Cinematographer',category:'film'},
+    {order:25,title:'Mumbai Calling',director:'Directed by Komal Nandwani',role:'Cinematographer',category:'film'},
+    {order:26,title:'Asian Vibe',director:'Directed by Vishal Rawlley',role:'Cinematographer',category:'film'},
+    {order:27,title:'A Human Question',director:'Directed by T. Jayashree',role:'Cinematographer',category:'film'},
+    {order:28,title:'Many People Many Desires',director:'Directed by T. Jayashree',role:'Cinematographer',category:'film'},
+    {order:29,title:"Where's Sandra",director:'Directed by Paromita Vohra',role:'Cinematographer',category:'film'},
+    {order:30,title:'Made in India',director:'Directed by Madhusree Dutta',role:'Cinematographer',category:'film'},
+    {order:31,title:'Thirst',director:'Directed by Alan Snitow & Deborah Kaufman',role:'Cinematographer',category:'film'},
+    {order:32,title:'Sunset Bollywood',director:'Directed by Nisha Pahuja',role:'Cinematographer',category:'film'},
+    {order:33,title:'Ayurveda',director:'Directed by Pan Nalin',role:'Cinematographer',category:'film'},
+    {order:34,title:'Lokpriya / Rasikpriya',director:'Directed by Arun Khopkar',role:'Cinematographer',category:'film'},
+  ];
+  const arts = [
+    {order:1,title:'Before the Rain',director:'Collaboration with Hans Op de Beeck',role:'Visual Art',category:'art'},
+    {order:2,title:'The Character',director:'Collaboration with Candice Breitz',role:'Visual Art',category:'art'},
+    {order:3,title:'In Search of Vanished Blood',director:'Collaboration with Nalini Malani',role:'Visual Art',category:'art'},
+    {order:4,title:'Unity in Diversity',director:'Collaboration with Nalini Malani',role:'Visual Art',category:'art'},
+    {order:5,title:'Remembering Mad Meg',director:'Collaboration with Nalini Malani',role:'Visual Art',category:'art'},
+    {order:6,title:'Trash',director:'Collaboration with Vivan Sundaram',role:'Visual Art',category:'art'},
+    {order:7,title:'Tracking',director:'Collaboration with Vivan Sundaram',role:'Visual Art',category:'art'},
+    {order:8,title:'Insurrection 1945',director:'Collaboration with Vivan Sundaram (Documentation)',role:'Documentation',category:'art'},
+    {order:9,title:'Each Night Put Kashmir',director:'Collaboration with Nilima Sheikh (Documentation)',role:'Documentation',category:'art'},
+    {order:10,title:'In Your Dreams: Formals in Nine Episodes',director:'Collaboration with Mario Pfeiffer (Prologue & Epilogue)',role:'Visual Art',category:'art'},
+    {order:11,title:'Sweet Unease',director:'Collaboration with Ranbir Kaleka (Documentation)',role:'Documentation',category:'art'},
+    {order:12,title:'Untitled Video on Gujarat',director:'Collaboration with Riyas Komu',role:'Visual Art',category:'art'},
+    {order:13,title:'Squeeze Lime in Your Eye',director:'Collaboration with Kausik Mukhopadhyay (Documentation)',role:'Documentation',category:'art'},
+    {order:14,title:'Cornucopia',director:'Collaboration with Nalini Malani',role:'Visual Art',category:'art'},
+    {order:15,title:"Cassandra's Gift",director:'Collaboration with Nalini Malani',role:'Visual Art',category:'art'},
+    {order:16,title:'Toofun Mail',director:'Collaboration with Kausik Mukhopadhyay (Documentation)',role:'Documentation',category:'art'},
+    {order:17,title:'Balwan',director:'Collaboration with Kausik Mukhopadhyay (Documentation)',role:'Documentation',category:'art'},
+    {order:18,title:'Alternative Solutions',director:'Collaboration with Kausik Mukhopadhyay (Documentation)',role:'Documentation',category:'art'},
+    {order:19,title:'P.O.I. (People of India)',director:'Collaboration with Archana Hande (Documentation)',role:'Documentation',category:'art'},
+    {order:20,title:'Found Green',director:'Collaboration with Neha Choksi',role:'Visual Art',category:'art'},
+  ];
+  try {
+    const batch = db.batch();
+    [...films, ...arts].forEach(e => {
+      const id = e.title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+      batch.set(db.collection('cinematography').doc(id), { ...e, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    });
+    await batch.commit();
+    toast('All entries loaded!', 'ok'); loadCinematography();
+  } catch(e) { toast('Error: ' + e.message, 'fail'); }
+}
+
+// ── Writing ───────────────────────────────────────────
+let editingWriteId = null;
+let writeCache     = {};
+
+async function loadWriting() {
+  document.getElementById('write-loading').style.display = 'block';
+  document.getElementById('write-list').style.display = 'none';
+  try {
+    const snap = await db.collection('writing').orderBy('order').get();
+    writeCache = {};
+    const list = document.getElementById('write-list');
+    list.innerHTML = '';
+    snap.forEach(doc => {
+      writeCache[doc.id] = doc.data();
+      const d = doc.data();
+      const safeId = doc.id.replace(/'/g,"\\'");
+      const safeTitle = (d.title||'').replace(/'/g,"\\'");
+      list.innerHTML += `<div class="user-item">
+        <div style="flex:1;min-width:0">
+          <div class="ui-email" style="white-space:normal">${d.title || '—'}</div>
+          <div class="ui-role">${d.publisher || ''} &nbsp;·&nbsp; ${d.year || ''}</div>
+        </div>
+        <div style="display:flex;gap:.4rem;flex-shrink:0">
+          <button class="btn btn-edit-sm" style="font-size:.75rem;padding:.3rem .75rem" onclick="openWriteModal('${safeId}')">Edit</button>
+          <button class="btn btn-danger" onclick="delWriteEntry('${safeId}','${safeTitle}')">Delete</button>
+        </div>
+      </div>`;
+    });
+    document.getElementById('write-loading').style.display = snap.empty ? 'block' : 'none';
+    if (snap.empty) document.getElementById('write-loading').textContent = 'No articles yet. Click "+ Add New Article" or "↺ Load Default Articles".';
+    else list.style.display = 'block';
+  } catch(e) { document.getElementById('write-loading').textContent = 'Error: ' + e.message; }
+}
+
+function openWriteModal(id) {
+  editingWriteId = id;
+  document.getElementById('write-modal-title').textContent = id ? 'Edit Article' : 'Add New Article';
+  ['wm-publisher','wm-year','wm-title','wm-desc','wm-link','wm-order'].forEach(fid => document.getElementById(fid).value = '');
+  if (id && writeCache[id]) {
+    const d = writeCache[id];
+    set('wm-publisher', d.publisher); set('wm-year', d.year);
+    set('wm-title', d.title);         set('wm-desc', d.desc);
+    set('wm-link', d.link);           set('wm-order', d.order);
+  }
+  document.getElementById('write-overlay').classList.add('open');
+}
+function closeWriteModal() { document.getElementById('write-overlay').classList.remove('open'); editingWriteId = null; }
+
+async function saveWriteEntry() {
+  const title = get('wm-title');
+  if (!title) { toast('Title is required', 'fail'); return; }
+  const data = { publisher: get('wm-publisher'), year: get('wm-year'), title,
+    desc: get('wm-desc'), link: get('wm-link') || '#',
+    order: parseInt(get('wm-order')) || 99,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+  try {
+    const id = editingWriteId || title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60);
+    await db.collection('writing').doc(id).set(data, { merge: true });
+    closeWriteModal(); toast('Article saved!', 'ok'); loadWriting();
+  } catch(e) { toast('Error: ' + e.message, 'fail'); }
+}
+
+async function delWriteEntry(id, title) {
+  if (!confirm('Delete "' + title + '"?')) return;
+  try { await db.collection('writing').doc(id).delete(); toast('Deleted', 'ok'); loadWriting(); }
+  catch(e) { toast('Error: ' + e.message, 'fail'); }
+}
+
+async function seedWriting() {
+  if (!confirm('Load all 5 default articles?\nExisting entries will not be overwritten.')) return;
+  toast('Loading…', 'info');
+  const articles = [
+    {order:1,publisher:'Critical Collective',year:'2022',title:"'Cinematic Delhi: Multiple Histories of the Capital in Hindi Films'",desc:"An essay on representations of Delhi across Hindi cinema, tracing connections between the city's urban and political history and its screen depictions.",link:'#'},
+    {order:2,publisher:'Art Journal, India',year:'2020',title:"'Street Corner, 1985': Analysis of a painting by Sudhir Patwardhan",desc:"An analysis of Sudhir Patwardhan's painting Street Corner, 1985, looking at its depiction of working-class urban life in India.",link:'#'},
+    {order:3,publisher:'Moving Image Review',year:'2018',title:"'You've Told Me That Three Times Now: Propaganda / Anti-propaganda in the FD Documentary 1965-75'",desc:'Published in Moving Image Review and Art Journal (UK). A paper on state-sponsored documentary and the relationship between propaganda and anti-propaganda in Films Division productions from 1965 to 1975.',link:'#'},
+    {order:4,publisher:'MARG Magazine',year:'2018',title:"'Record, Replay: Imaging Technology and the Post-Digital Representation of the Real'",desc:'Published in Documentary Now, MARG Magazine. An essay on digital imaging technology and how it shapes documentary representation and the record of the real.',link:'#'},
+    {order:5,publisher:'Columbia Univ Press',year:'2011',title:"'Notes on Technology: At the Time of Going to Press'",desc:'Published in Project Cinema City (Columbia University Press / Tulika Books, 2011). A piece on technology and the changing conditions of cinema production and distribution in India.',link:'#'},
+  ];
+  try {
+    const batch = db.batch();
+    articles.forEach(a => {
+      const id = a.title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60);
+      batch.set(db.collection('writing').doc(id), { ...a, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    });
+    await batch.commit();
+    toast('All articles loaded!', 'ok'); loadWriting();
+  } catch(e) { toast('Error: ' + e.message, 'fail'); }
 }
 
 // ── Toast ─────────────────────────────────────────────

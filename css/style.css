@@ -490,6 +490,12 @@ header.site-nav .nav-container {
   font-weight: 300;
 }
 
+.stmt-line {
+  display: block;
+  overflow: hidden;
+  will-change: clip-path;
+}
+
 .about-stats {
   display: grid;
   grid-template-cols: repeat(3, 1fr);

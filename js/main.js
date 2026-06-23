@@ -748,7 +748,56 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 5. GSAP CINEMATIC ENTRANCE ANIMATIONS
+  // 5. FILM GATE WIPE — each bento card wipes left-to-right individually, re-triggers on scroll
+  const bentoCards = document.querySelectorAll('.bento-card');
+  if (bentoCards.length > 0 && window.gsap) {
+    gsap.set(bentoCards, { clipPath: 'inset(0 100% 0 0)' });
+
+    const gateObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          gsap.to(entry.target, {
+            clipPath: 'inset(0 0% 0 0)',
+            duration: 0.9,
+            ease: 'power3.inOut',
+            overwrite: true
+          });
+        } else {
+          gsap.killTweensOf(entry.target);
+          gsap.set(entry.target, { clipPath: 'inset(0 100% 0 0)' });
+        }
+      });
+    }, { threshold: 0.25 });
+
+    bentoCards.forEach(card => gateObserver.observe(card));
+  }
+
+  // 6. STATEMENT TEXT — each line wipes upward frame by frame, re-triggers on scroll
+  const stmtLines = document.querySelectorAll('.stmt-line');
+  if (stmtLines.length > 0 && window.gsap) {
+    gsap.set(stmtLines, { clipPath: 'inset(110% 0 0 0)' });
+
+    const stmtObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          gsap.to(stmtLines, {
+            clipPath: 'inset(0% 0 0 0)',
+            stagger: 0.18,
+            duration: 1.1,
+            ease: 'power3.out',
+            overwrite: true
+          });
+        } else {
+          gsap.killTweensOf(stmtLines);
+          gsap.set(stmtLines, { clipPath: 'inset(110% 0 0 0)' });
+        }
+      });
+    }, { threshold: 0.3 });
+
+    stmtObserver.observe(document.querySelector('.home-about') || stmtLines[0]);
+  }
+
+  // 7. GSAP CINEMATIC ENTRANCE ANIMATIONS
   if (window.gsap) {
     // Hero Entrance Sequence
     const tl = window.gsap.timeline();

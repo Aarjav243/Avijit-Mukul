@@ -51,9 +51,19 @@
     if (d.bio1) setText('bio-1', d.bio1);
     if (d.bio2) setText('bio-2', d.bio2);
     if (d.bio3) setText('bio-3', d.bio3);
+    if (d.edu1Year)  setText('edu1-year',  d.edu1Year);
+    if (d.edu1Title) setText('edu1-title', d.edu1Title);
+    if (d.edu1Desc)  setText('edu1-desc',  d.edu1Desc);
+    if (d.edu2Year)  setText('edu2-year',  d.edu2Year);
+    if (d.edu2Title) setText('edu2-title', d.edu2Title);
+    if (d.edu2Desc)  setText('edu2-desc',  d.edu2Desc);
+    if (d.cur1Year)  setText('cur1-year',  d.cur1Year);
+    if (d.cur1Title) setText('cur1-title', d.cur1Title);
+    if (d.cur1Desc)  setText('cur1-desc',  d.cur1Desc);
   }
 
   function applyContact(d) {
+    if (d.intro) setText('contact-intro', d.intro);
     if (d.address) setHtml('contact-address', d.address.replace(/\n/g, '<br>'));
     if (d.phone) {
       document.querySelectorAll('[data-cms="contact-phone"]').forEach(el => {
@@ -98,6 +108,59 @@
     if (window.lucide) lucide.createIcons();
   }
 
+  function renderCinematography(entries) {
+    const filmList = document.getElementById('cms-cine-film-list');
+    const artList  = document.getElementById('cms-cine-art-list');
+    if (!filmList && !artList) return;
+    const filmEntries = entries.filter(e => e.category === 'film');
+    const artEntries  = entries.filter(e => e.category === 'art');
+    if (filmList && filmEntries.length) {
+      filmList.innerHTML = filmEntries.map(e => `
+        <div class="cinema-row" data-category="film">
+          <div class="cinema-title-block">
+            <h4>${e.title}</h4>
+            <div class="cinema-director">${e.director || ''}</div>
+          </div>
+          <div class="cinema-meta-block">${e.role || 'Cinematographer'}</div>
+        </div>`).join('');
+    }
+    if (artList && artEntries.length) {
+      artList.innerHTML = artEntries.map(e => `
+        <div class="cinema-row" data-category="art">
+          <div class="cinema-title-block">
+            <h4>${e.title}</h4>
+            <div class="cinema-director">${e.director || ''}</div>
+          </div>
+          <div class="cinema-meta-block">${e.role || 'Visual Art'}</div>
+        </div>`).join('');
+    }
+    // re-trigger tab filters if main.js already ran
+    if (window.__tabsInit) window.__tabsInit();
+  }
+
+  function renderWriting(entries) {
+    const container = document.getElementById('cms-writing-list');
+    if (!container || !entries.length) return;
+    container.innerHTML = entries.map(e => `
+      <article class="writing-card reveal-element">
+        <div class="writing-card-meta">
+          <span>${e.publisher || ''}</span>
+          <span>${e.year || ''}</span>
+        </div>
+        <div class="writing-card-content">
+          <h2 class="writing-card-title">
+            <a href="${e.link || '#'}">${e.title || ''}</a>
+          </h2>
+          <p class="writing-card-desc">${e.desc || ''}</p>
+          <a href="${e.link || '#'}" class="writing-card-link">
+            <span>Request Access</span>
+            <i data-lucide="arrow-up-right" style="width:14px;height:14px;"></i>
+          </a>
+        </div>
+      </article>`).join('');
+    if (window.lucide) lucide.createIcons();
+  }
+
   function init() {
     if (!window.firebase) return;
     firebase.initializeApp(firebaseConfig);
@@ -117,14 +180,38 @@
         .then(doc => { if (doc.exists) applyContact(doc.data()); })
         .catch(() => {});
     } else if (page === 'director') {
-      db.collection('films').orderBy('order').get()
-        .then(snapshot => {
-          if (!snapshot.empty) {
-            const films = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-            renderFilms(films);
-          }
-        })
-        .catch(() => {});
+      Promise.all([
+        db.collection('content').doc('director').get(),
+        db.collection('films').orderBy('order').get()
+      ]).then(([contentDoc, snapshot]) => {
+        if (contentDoc.exists && contentDoc.data().intro) setText('director-intro', contentDoc.data().intro);
+        if (!snapshot.empty) {
+          const films = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+          renderFilms(films);
+        }
+      }).catch(() => {});
+    } else if (page === 'cinematographer') {
+      Promise.all([
+        db.collection('content').doc('cinematographer').get(),
+        db.collection('cinematography').orderBy('order').get()
+      ]).then(([contentDoc, snapshot]) => {
+        if (contentDoc.exists && contentDoc.data().intro) setText('cine-intro', contentDoc.data().intro);
+        if (!snapshot.empty) {
+          const entries = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+          renderCinematography(entries);
+        }
+      }).catch(() => {});
+    } else if (page === 'writing') {
+      Promise.all([
+        db.collection('content').doc('writing').get(),
+        db.collection('writing').orderBy('order').get()
+      ]).then(([contentDoc, snapshot]) => {
+        if (contentDoc.exists && contentDoc.data().intro) setText('writing-intro', contentDoc.data().intro);
+        if (!snapshot.empty) {
+          const entries = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+          renderWriting(entries);
+        }
+      }).catch(() => {});
     }
   }
 
