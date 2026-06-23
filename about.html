@@ -37,22 +37,22 @@
     <section class="about-hero" aria-label="Biography">
       <div class="container about-hero-grid">
         <div class="about-body-text reveal-element">
-          <span class="text-mono">Biography</span>
-          <h1 class="text-heading-large">Avijit Mukul Kishore</h1>
+          <span class="text-mono film-cut-reveal">Biography</span>
+          <h1 class="text-heading-large film-cut-reveal" style="margin-top: 0.5rem; margin-bottom: 1rem;">Avijit Mukul Kishore</h1>
           
-          <p class="text-body" style="font-size: 1.15rem; color: var(--text-primary);">
+          <p class="text-body film-cut-reveal" data-cms="bio-1" style="font-size: 1.15rem; color: var(--text-primary); margin-bottom: 1.5rem;">
             Avijit Mukul Kishore is a filmmaker and cinematographer based in Mumbai. He works primarily in documentary and inter-disciplinary moving-image practice. He has made eleven documentary films as director and worked on several others as cinematographer. He has shot one fiction feature and worked on television talk shows and advertising films.
           </p>
-          
-          <p class="text-body">
+
+          <p class="text-body film-cut-reveal" data-cms="bio-2" style="margin-bottom: 1.5rem;">
             Kishore has been involved in cinema pedagogy as a lecturer and curator of film programmes for over two decades. He has worked with state film and media archives and is interested in the non-fiction film form and moving-image history.
           </p>
 
-          <p class="text-body">
+          <p class="text-body film-cut-reveal" data-cms="bio-3" style="margin-bottom: 1.5rem;">
             Before directing, he worked as a broadcaster on state radio and television for five years and was a member of two theatre groups in Delhi.
           </p>
 
-          <div style="margin-top: 1.5rem;">
+          <div style="margin-top: 2rem;">
             <a href="resume.md" class="btn btn-secondary" target="_blank">
               <span>View Full CV (Markdown)</span>
               <i data-lucide="file-text" style="width: 16px; height: 16px; margin-left: 0.5rem;"></i>
@@ -62,15 +62,15 @@
       </div>
     </section>
 
-    <!-- TIMELINE / EDUCATION SECTION -->
-    <section class="academic-timeline" aria-labelledby="academic-heading">
+    <!-- EDUCATION SECTION -->
+    <section class="academic-timeline" aria-labelledby="education-heading">
       <div class="container">
         <span class="text-mono">Academic Framework</span>
-        <h2 id="academic-heading" class="text-heading-large" style="margin-top: 0.5rem;">Education & Curation</h2>
-        
+        <h2 id="education-heading" class="text-heading-large reveal-element film-cut-reveal" style="margin-top: 0.5rem;">Education</h2>
+
         <div class="timeline-list">
           <div class="timeline-item reveal-element">
-            <div class="timeline-date">1995</div>
+            <div class="timeline-date film-counter" data-target="1995">1995</div>
             <div class="timeline-content">
               <h3>Diploma in Cinema (Cinematography)</h3>
               <p>Film and Television Institute of India, Pune. Specialization in cinema pedagogy, moving-image capture, lighting design, and camera choreography.</p>
@@ -78,15 +78,25 @@
           </div>
 
           <div class="timeline-item reveal-element">
-            <div class="timeline-date">1992</div>
+            <div class="timeline-date film-counter" data-target="1992">1992</div>
             <div class="timeline-content">
               <h3>Bachelors of Arts (Honours) in History</h3>
               <p>Hindu College, University of Delhi. Focused on modern Indian history, archive study, and post-colonial cultural identity research.</p>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
 
+    <!-- CURATION SECTION -->
+    <section class="academic-timeline" aria-labelledby="curation-heading" style="padding-top: 0;">
+      <div class="container">
+        <span class="text-mono">Programme Work</span>
+        <h2 id="curation-heading" class="text-heading-large reveal-element film-cut-reveal" style="margin-top: 0.5rem;">Curation</h2>
+
+        <div class="timeline-list">
           <div class="timeline-item reveal-element">
-            <div class="timeline-date">Curation</div>
+            <div class="timeline-date timeline-date-ongoing" data-text="Ongoing">Ongoing</div>
             <div class="timeline-content">
               <h3>Film Programs Curation</h3>
               <p>Over two decades curating public film exhibitions, archive retrospective selections, and pedagogical workshops on documentary forms across academic institutions in India and internationally.</p>
@@ -115,6 +125,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/cms-loader.js"></script>
   <script>
     lucide.createIcons();
   </script>

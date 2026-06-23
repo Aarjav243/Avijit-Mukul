@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AMK Website Editor</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #f5f5f0;
+      --sidebar: #111111;
+      --accent: #111111;
+      --white: #ffffff;
+      --border: #e2e2de;
+      --text: #111111;
+      --text-light: #888;
+      --success: #16a34a;
+      --error: #dc2626;
+      --radius: 10px;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); }
+
+    /* ── LOGIN ────────────────────── */
+    #login-screen {
+      min-height: 100vh; display: flex; align-items: center;
+      justify-content: center; background: var(--sidebar);
+    }
+    .login-card {
+      background: var(--white); padding: 2.5rem 2.25rem;
+      border-radius: 14px; width: 360px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.4);
+    }
+    .login-logo { font-size: 2rem; font-weight: 800; letter-spacing: -.05em; }
+    .login-sub  { color: var(--text-light); font-size: .8rem; margin: .25rem 0 2rem; }
+
+    label { display: block; font-size: .73rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--text-light); margin-bottom: .35rem; }
+    input, textarea, select {
+      width: 100%; padding: .7rem .9rem; border: 1.5px solid var(--border);
+      border-radius: 8px; font-size: .92rem; color: var(--text);
+      outline: none; transition: border-color .15s; background: var(--white);
+      font-family: inherit;
+    }
+    input:focus, textarea:focus { border-color: var(--text); }
+    textarea { resize: vertical; min-height: 76px; }
+    .fgrp { margin-bottom: 1.1rem; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+      padding: .7rem 1.4rem; border: none; border-radius: 8px;
+      font-size: .87rem; font-weight: 700; cursor: pointer;
+      transition: opacity .15s, transform .1s; font-family: inherit; text-decoration: none;
+    }
+    .btn:hover  { opacity: .82; }
+    .btn:active { transform: scale(.98); }
+    .btn-dark   { background: var(--text); color: #fff; width: 100%; margin-top: .5rem; }
+    .btn-save   { background: var(--text); color: #fff; padding: .6rem 1.6rem; font-size: .83rem; }
+    .btn-ghost  { background: transparent; color: var(--text-light); border: 1.5px solid var(--border); }
+    .btn-danger { background: #fef2f2; color: var(--error); border: 1px solid #fecaca; font-size: .8rem; padding: .35rem .8rem; }
+    .btn-add    { background: var(--white); color: var(--text); border: 1.5px dashed #ccc; padding: .65rem 1.25rem; font-size: .85rem; }
+
+    .login-err { color: var(--error); font-size: .82rem; margin-top: .6rem; display: none; }
+
+    /* ── LAYOUT ───────────────────── */
+    #dashboard { display: none; min-height: 100vh; }
+    .layout    { display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ──────────────────── */
+    .sidebar {
+      width: 210px; min-width: 210px; background: var(--sidebar); color: #aaa;
+      display: flex; flex-direction: column; padding: 1.25rem 0;
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+    }
+    .sb-brand { padding: 0 1.2rem 1.25rem; border-bottom: 1px solid #222; margin-bottom: 1rem; }
+    .sb-logo  { font-size: 1.35rem; font-weight: 800; letter-spacing: -.04em; color: #fff; }
+    .sb-tag   { font-size: .63rem; text-transform: uppercase; letter-spacing: .1em; color: #555; margin-top: .2rem; }
+
+    .nav-sec  { padding: 0 .75rem; flex: 1; }
+    .nav-lbl  { font-size: .62rem; text-transform: uppercase; letter-spacing: .1em; color: #444; padding: .75rem .5rem .35rem; }
+    .nav-item {
+      display: flex; align-items: center; gap: .6rem; padding: .55rem .75rem;
+      border-radius: 7px; cursor: pointer; font-size: .85rem; color: #777;
+      transition: all .12s; margin-bottom: 1px; user-select: none;
+    }
+    .nav-item:hover  { background: #1c1c1c; color: #ccc; }
+    .nav-item.active { background: #1c1c1c; color: #fff; font-weight: 600; }
+    .nav-icon { width: 18px; text-align: center; font-size: .95rem; }
+
+    .sb-foot  { padding: 1rem 1.2rem 0; border-top: 1px solid #222; margin-top: auto; }
+    .sb-email { font-size: .72rem; color: #444; margin-bottom: .5rem; word-break: break-all; }
+    .btn-out  { background: none; border: 1px solid #222; color: #555; width: 100%; padding: .45rem; border-radius: 6px; cursor: pointer; font-size: .78rem; font-family: inherit; transition: all .15s; }
+    .btn-out:hover { border-color: #444; color: #888; }
+
+    /* ── MAIN ─────────────────────── */
+    .main { margin-left: 210px; flex: 1; padding: 2rem 2.5rem; max-width: 860px; }
+
+    .page        { display: none; }
+    .page.active { display: block; }
+
+    .pg-title { font-size: 1.55rem; font-weight: 700; margin-bottom: .3rem; }
+    .pg-desc  { color: var(--text-light); font-size: .88rem; margin-bottom: 1.75rem; }
+
+    /* ── CARDS ────────────────────── */
+    .card { background: var(--white); border-radius: var(--radius); padding: 1.4rem 1.5rem; margin-bottom: 1.1rem; border: 1px solid var(--border); }
+    .card-lbl { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-light); margin-bottom: 1.1rem; }
+
+    /* ── SAVE BAR ─────────────────── */
+    .save-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .9rem 1.25rem; background: var(--white);
+      border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 1.1rem;
+    }
+    .save-st          { font-size: .82rem; color: var(--text-light); }
+    .save-st.saved    { color: var(--success); }
+    .save-st.saving   { color: var(--text-light); }
+    .save-st.err      { color: var(--error); }
+
+    /* ── FILMS GRID ───────────────── */
+    .films-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(185px,1fr)); gap: .9rem; margin-bottom: 1.5rem; }
+    .fc {
+      background: var(--white); border-radius: var(--radius);
+      border: 1px solid var(--border); overflow: hidden; cursor: default;
+      transition: box-shadow .15s;
+    }
+    .fc:hover { box-shadow: 0 4px 18px rgba(0,0,0,.09); }
+    .fc img   { width: 100%; height: 105px; object-fit: cover; background: #eee; display: block; }
+    .fc-body  { padding: .75rem; }
+    .fc-title { font-size: .83rem; font-weight: 600; margin-bottom: .18rem; line-height: 1.3; }
+    .fc-year  { font-size: .72rem; color: var(--text-light); }
+    .fc-acts  { display: flex; gap: .35rem; margin-top: .6rem; }
+    .fc-acts button { font-size: .72rem; padding: .28rem .65rem; border-radius: 5px; border: none; cursor: pointer; font-family: inherit; font-weight: 600; }
+    .btn-edit-sm { background: #f4f4f0; color: var(--text); }
+    .btn-del-sm  { background: #fef2f2; color: var(--error); }
+
+    /* ── MODAL ────────────────────── */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
+    .overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 14px; padding: 1.75rem; width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; }
+    .modal-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.4rem; }
+    .modal-title { font-size: 1.05rem; font-weight: 700; }
+    .modal-x { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-light); line-height: 1; padding: .2rem; }
+    .modal-ft { display: flex; justify-content: flex-end; gap: .65rem; margin-top: 1.4rem; padding-top: 1.1rem; border-top: 1px solid var(--border); }
+
+    .thumb-preview { width: 100%; height: 135px; object-fit: cover; border-radius: 8px; margin-bottom: .75rem; background: #f0f0ea; display: block; }
+    .thumb-preview.hidden { display: none; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    /* ── USERS ────────────────────── */
+    .user-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .85rem 1.1rem; background: var(--white);
+      border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: .65rem;
+    }
+    .ui-email { font-size: .88rem; font-weight: 500; }
+    .ui-role  { font-size: .73rem; color: var(--text-light); margin-top: .1rem; }
+    .ui-you   { font-size: .73rem; color: var(--text-light); background: #f4f4f0; padding: .2rem .55rem; border-radius: 4px; }
+
+    /* ── TOAST ────────────────────── */
+    .toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999;
+      padding: .8rem 1.2rem; border-radius: 9px; font-size: .85rem; font-weight: 500;
+      transform: translateY(80px); opacity: 0; transition: all .28s cubic-bezier(.175,.885,.32,1.275);
+      pointer-events: none;
+    }
+    .toast.show  { transform: translateY(0); opacity: 1; }
+    .toast.ok    { background: #14532d; color: #fff; }
+    .toast.fail  { background: #7f1d1d; color: #fff; }
+    .toast.info  { background: var(--text); color: #fff; }
+
+    .loading { text-align: center; padding: 2.5rem; color: var(--text-light); font-size: .9rem; }
+
+    @media (max-width: 640px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     LOGIN
+═══════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">AMK</div>
+    <div class="login-sub">Website Editor — sign in to continue</div>
+    <form id="login-form">
+      <div class="fgrp">
+        <label for="l-email">Email</label>
+        <input type="email" id="l-email" placeholder="you@example.com" required />
+      </div>
+      <div class="fgrp">
+        <label for="l-pass">Password</label>
+        <input type="password" id="l-pass" placeholder="••••••••" required />
+      </div>
+      <button type="submit" class="btn btn-dark" id="login-btn">Sign In</button>
+      <div class="login-err" id="login-err"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     DASHBOARD
+═══════════════════════════════════════ -->
+<div id="dashboard">
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sb-brand">
+        <div class="sb-logo">AMK</div>
+        <div class="sb-tag">Website Editor</div>
+      </div>
+      <div class="nav-sec">
+        <div class="nav-lbl">Content</div>
+        <div class="nav-item active" data-page="homepage"><span class="nav-icon">🏠</span> Homepage</div>
+        <div class="nav-item" data-page="about"><span class="nav-icon">👤</span> About</div>
+        <div class="nav-item" data-page="contact"><span class="nav-icon">📞</span> Contact</div>
+        <div class="nav-lbl" style="margin-top:.75rem">Films</div>
+        <div class="nav-item" data-page="films"><span class="nav-icon">🎬</span> Directed Films</div>
+        <div class="nav-lbl" style="margin-top:.75rem">Settings</div>
+        <div class="nav-item" data-page="users"><span class="nav-icon">👥</span> Manage Access</div>
+      </div>
+      <div class="sb-foot">
+        <div class="sb-email" id="user-email">—</div>
+        <button class="btn-out" id="logout-btn">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- ─ HOMEPAGE ─ -->
+      <div class="page active" id="page-homepage">
+        <div class="pg-title">Homepage</div>
+        <div class="pg-desc">Edit the text shown on the main home page.</div>
+        <div class="save-bar">
+          <span class="save-st" id="st-homepage">No unsaved changes</span>
+          <button class="btn btn-save" onclick="save('homepage')">Save Changes</button>
+        </div>
+        <div class="card">
+          <div class="card-lbl">Hero Section</div>
+          <div class="fgrp">
+            <label>Role / Tagline (top line under name)</label>
+            <input type="text" id="hp-heroRole" placeholder="Filmmaker & Cinematographer" />
+          </div>
+          <div class="fgrp">
+            <label>Short Description (below name)</label>
+            <textarea id="hp-heroDesc" rows="2" placeholder="Based in Mumbai. Works in documentary..."></textarea>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-lbl">Overview Statement</div>
+          <div class="fgrp">
+            <label>Large Statement Text</label>
+            <textarea id="hp-statement" rows="3" placeholder="Twenty years of work in non-fiction film..."></textarea>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-lbl">Statistics (the 3 numbers)</div>
+          <div class="grid2" style="grid-template-columns:1fr 1fr 1fr">
+            <div class="fgrp"><label>Directed Films</label><input type="text" id="hp-stat1" placeholder="11" /></div>
+            <div class="fgrp"><label>Cinematographies</label><input type="text" id="hp-stat2" placeholder="50+" /></div>
+            <div class="fgrp"><label>Years Pedagogy</label><input type="text" id="hp-stat3" placeholder="20+" /></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─ ABOUT ─ -->
+      <div class="page" id="page-about">
+        <div class="pg-title">About & Pedagogy</div>
+        <div class="pg-desc">Edit the biography paragraphs on the About page.</div>
+        <div class="save-bar">
+          <span class="save-st" id="st-about">No unsaved changes</span>
+          <button class="btn btn-save" onclick="save('about')">Save Changes</button>
+        </div>
+        <div class="card">
+          <div class="card-lbl">Biography</div>
+          <div class="fgrp"><label>Paragraph 1 — Main introduction</label><textarea id="ab-bio1" rows="5"></textarea></div>
+          <div class="fgrp"><label>Paragraph 2</label><textarea id="ab-bio2" rows="4"></textarea></div>
+          <div class="fgrp"><label>Paragraph 3</label><textarea id="ab-bio3" rows="3"></textarea></div>
+        </div>
+      </div>
+
+      <!-- ─ CONTACT ─ -->
+      <div class="page" id="page-contact">
+        <div class="pg-title">Contact Details</div>
+        <div class="pg-desc">Edit the contact information shown on the Contact page.</div>
+        <div class="save-bar">
+          <span class="save-st" id="st-contact">No unsaved changes</span>
+          <button class="btn btn-save" onclick="save('contact')">Save Changes</button>
+        </div>
+        <div class="card">
+          <div class="fgrp"><label>Mailing Address (each line on a new line)</label><textarea id="ct-address" rows="3" placeholder="113, Avon Classic,&#10;Dattapada Road, Borivali (E),&#10;Mumbai, 400066, India"></textarea></div>
+          <div class="grid2">
+            <div class="fgrp"><label>Phone Number</label><input type="text" id="ct-phone" placeholder="+91-98200-95600" /></div>
+            <div class="fgrp"><label>Email Address</label><input type="email" id="ct-email" placeholder="avimuk@gmail.com" /></div>
+          </div>
+          <div class="fgrp"><label>Professional Circles / Memberships</label><textarea id="ct-professional" rows="2"></textarea></div>
+        </div>
+      </div>
+
+      <!-- ─ FILMS ─ -->
+      <div class="page" id="page-films">
+        <div class="pg-title">Directed Films</div>
+        <div class="pg-desc">Add, edit or remove films from the Director page.</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+          <button class="btn btn-add" onclick="openModal(null)">+ Add New Film</button>
+          <button class="btn btn-ghost" style="font-size:.78rem;padding:.4rem .9rem;" onclick="seedFilms()" title="Populate films from the original site data">↺ Load Default Films</button>
+        </div>
+        <div id="films-loading" class="loading">Loading films…</div>
+        <div class="films-grid" id="films-grid" style="display:none"></div>
+      </div>
+
+      <!-- ─ USERS ─ -->
+      <div class="page" id="page-users">
+        <div class="pg-title">Manage Access</div>
+        <div class="pg-desc">Control who can log in and edit this website.</div>
+        <div class="card">
+          <div class="card-lbl">Add New Editor</div>
+          <div class="grid2">
+            <div class="fgrp"><label>Their Email</label><input type="email" id="nu-email" placeholder="editor@example.com" /></div>
+            <div class="fgrp"><label>Temporary Password (min 6 chars)</label><input type="password" id="nu-pass" placeholder="••••••••" /></div>
+          </div>
+          <button class="btn btn-save" onclick="addUser()">Create User</button>
+          <div id="nu-status" style="font-size:.82rem;margin-top:.65rem;color:var(--text-light)"></div>
+        </div>
+        <div class="card">
+          <div class="card-lbl">Current Editors</div>
+          <div id="ul-loading" class="loading" style="padding:1rem">Loading…</div>
+          <div id="ul-list" style="display:none"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ═══ FILM MODAL ══════════════════════ -->
+<div class="overlay" id="film-overlay">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title" id="modal-title">Edit Film</div>
+      <button class="modal-x" onclick="closeModal()">✕</button>
+    </div>
+
+    <img id="fm-preview" class="thumb-preview hidden" src="" alt="thumbnail" onerror="this.classList.add('hidden')" />
+
+    <div class="fgrp">
+      <label>Thumbnail Image</label>
+      <div style="display:flex;gap:.5rem;align-items:center;">
+        <input type="url" id="fm-thumbnail" placeholder="https://i.vimeocdn.com/video/..." oninput="previewThumb(this.value)" style="flex:1" />
+        <label for="fm-upload" class="btn btn-ghost" style="cursor:pointer;white-space:nowrap;margin:0;font-size:.78rem;padding:.65rem 1rem;" title="Upload from your computer">
+          📁 Upload
+        </label>
+        <input type="file" id="fm-upload" accept="image/*" style="display:none" onchange="uploadThumb(this)" />
+      </div>
+      <div id="upload-progress" style="display:none;margin-top:.5rem;font-size:.78rem;color:var(--text-light);">Uploading…</div>
+    </div>
+    <div class="grid2">
+      <div class="fgrp"><label>Film Title *</label><input type="text" id="fm-title" placeholder="A Minuscule Minority" /></div>
+      <div class="fgrp"><label>Year</label><input type="text" id="fm-year" placeholder="2025" /></div>
+    </div>
+    <div class="grid2">
+      <div class="fgrp"><label>Duration</label><input type="text" id="fm-duration" placeholder="74 min" /></div>
+      <div class="fgrp"><label>Format</label><input type="text" id="fm-format" placeholder="4K Video" /></div>
+    </div>
+    <div class="fgrp"><label>Language(s)</label><input type="text" id="fm-language" placeholder="Eng, Hin, Mar" /></div>
+    <div class="fgrp"><label>Description</label><textarea id="fm-desc" rows="3" placeholder="Short description of the film…"></textarea></div>
+    <div class="fgrp"><label>Screenings / Festivals / Awards</label><textarea id="fm-venues" rows="3" placeholder="IDSFFK Kerala · Sheffield Doc/fest · …"></textarea></div>
+    <div class="fgrp"><label>Sort Order (1 = shown first)</label><input type="number" id="fm-order" placeholder="1" min="1" /></div>
+
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-save" onclick="saveFilm()">Save Film</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══ FIREBASE CDN ═══════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+
+<script>
+// ── Config ────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey: "AIzaSyB4gFXohZJg-gLOa_2Lfh3rTjapcX0-iTo",
+  authDomain: "avijit-mukul-kishore-sit-e3368.firebaseapp.com",
+  projectId: "avijit-mukul-kishore-sit-e3368",
+  storageBucket: "avijit-mukul-kishore-sit-e3368.firebasestorage.app",
+  messagingSenderId: "633723739617",
+  appId: "1:633723739617:web:a6c047298cba20367486a0"
+});
+const auth    = firebase.auth();
+const db      = firebase.firestore();
+const storage = firebase.storage();
+
+// ── State ─────────────────────────────────────────────
+let editingFilmId = null;
+let filmsCache    = {};
+
+// ── Auth ──────────────────────────────────────────────
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('user-email').textContent = user.email;
+    loadAllContent();
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('dashboard').style.display = 'none';
+  }
+});
+
+document.getElementById('login-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-err');
+  btn.textContent = 'Signing in…'; btn.disabled = true; err.style.display = 'none';
+  try {
+    await auth.signInWithEmailAndPassword(
+      document.getElementById('l-email').value,
+      document.getElementById('l-pass').value
+    );
+  } catch (ex) {
+    err.textContent = ['auth/wrong-password','auth/user-not-found','auth/invalid-credential'].includes(ex.code)
+      ? 'Incorrect email or password.' : ex.message;
+    err.style.display = 'block';
+    btn.textContent = 'Sign In'; btn.disabled = false;
+  }
+});
+
+document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+
+// ── Navigation ────────────────────────────────────────
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    item.classList.add('active');
+    const pg = item.dataset.page;
+    document.getElementById('page-' + pg).classList.add('active');
+    if (pg === 'films') loadFilms();
+    if (pg === 'users') loadUsers();
+  });
+});
+
+// ── Load All Text Content ─────────────────────────────
+async function loadAllContent() {
+  try {
+    const [hp, ab, ct] = await Promise.all([
+      db.collection('content').doc('homepage').get(),
+      db.collection('content').doc('about').get(),
+      db.collection('content').doc('contact').get()
+    ]);
+    if (hp.exists) { const d = hp.data();
+      set('hp-heroRole', d.heroRole); set('hp-heroDesc', d.heroDesc);
+      set('hp-statement', d.statement);
+      set('hp-stat1', d.stat1); set('hp-stat2', d.stat2); set('hp-stat3', d.stat3);
+    }
+    if (ab.exists) { const d = ab.data();
+      set('ab-bio1', d.bio1); set('ab-bio2', d.bio2); set('ab-bio3', d.bio3);
+    }
+    if (ct.exists) { const d = ct.data();
+      set('ct-address', d.address); set('ct-phone', d.phone);
+      set('ct-email', d.email);     set('ct-professional', d.professional);
+    }
+  } catch (e) { console.warn('load content', e); }
+}
+function set(id, val) { const el = document.getElementById(id); if (el && val != null) el.value = val; }
+function get(id) { return (document.getElementById(id)?.value || '').trim(); }
+
+// ── Save Text Sections ────────────────────────────────
+async function save(section) {
+  const st = document.getElementById('st-' + section);
+  st.textContent = 'Saving…'; st.className = 'save-st saving';
+  let data = {};
+  if (section === 'homepage') data = { heroRole: get('hp-heroRole'), heroDesc: get('hp-heroDesc'), statement: get('hp-statement'), stat1: get('hp-stat1'), stat2: get('hp-stat2'), stat3: get('hp-stat3') };
+  if (section === 'about')    data = { bio1: get('ab-bio1'), bio2: get('ab-bio2'), bio3: get('ab-bio3') };
+  if (section === 'contact')  data = { address: get('ct-address'), phone: get('ct-phone'), email: get('ct-email'), professional: get('ct-professional') };
+  try {
+    await db.collection('content').doc(section).set(data, { merge: true });
+    st.textContent = '✓ Saved'; st.className = 'save-st saved';
+    toast('Changes saved!', 'ok');
+    setTimeout(() => { st.textContent = 'No unsaved changes'; st.className = 'save-st'; }, 3000);
+  } catch (e) {
+    st.textContent = '✗ Save failed'; st.className = 'save-st err';
+    toast('Save failed: ' + e.message, 'fail');
+  }
+}
+
+// ── Films ─────────────────────────────────────────────
+async function loadFilms() {
+  document.getElementById('films-loading').style.display = 'block';
+  document.getElementById('films-grid').style.display = 'none';
+  try {
+    const snap = await db.collection('films').orderBy('order').get();
+    filmsCache = {};
+    const grid = document.getElementById('films-grid');
+    grid.innerHTML = '';
+    snap.forEach(doc => {
+      filmsCache[doc.id] = doc.data();
+      grid.innerHTML += filmCard(doc.id, doc.data());
+    });
+    document.getElementById('films-loading').style.display = snap.empty ? 'block' : 'none';
+    if (snap.empty) document.getElementById('films-loading').textContent = 'No films yet. Click "+ Add New Film" or use "↺ Load Default Films".';
+    else grid.style.display = 'grid';
+  } catch (e) {
+    document.getElementById('films-loading').textContent = 'Error: ' + e.message;
+  }
+}
+
+function filmCard(id, f) {
+  const safeId = id.replace(/'/g, "\\'");
+  const safeTitle = (f.title || 'Untitled').replace(/'/g, "\\'");
+  return `<div class="fc">
+    <img src="${f.thumbnail || ''}" alt="${f.title||''}" onerror="this.style.background='#e8e8e4';this.removeAttribute('src')" />
+    <div class="fc-body">
+      <div class="fc-title">${f.title || 'Untitled'}</div>
+      <div class="fc-year">${f.year || ''}</div>
+      <div class="fc-acts">
+        <button class="btn-edit-sm" onclick="openModal('${safeId}')">Edit</button>
+        <button class="btn-del-sm"  onclick="delFilm('${safeId}','${safeTitle}')">Delete</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function openModal(id) {
+  editingFilmId = id;
+  document.getElementById('modal-title').textContent = id ? 'Edit Film' : 'Add New Film';
+  ['fm-thumbnail','fm-title','fm-year','fm-duration','fm-format','fm-language','fm-desc','fm-venues','fm-order']
+    .forEach(fid => { document.getElementById(fid).value = ''; });
+  document.getElementById('fm-preview').classList.add('hidden');
+
+  if (id && filmsCache[id]) {
+    const f = filmsCache[id];
+    set('fm-thumbnail', f.thumbnail); set('fm-title', f.title);
+    set('fm-year', f.year);           set('fm-duration', f.duration);
+    set('fm-format', f.format);       set('fm-language', f.language);
+    set('fm-desc', f.desc);           set('fm-venues', f.venues);
+    set('fm-order', f.order);
+    previewThumb(f.thumbnail);
+  }
+  document.getElementById('film-overlay').classList.add('open');
+}
+
+function closeModal() { document.getElementById('film-overlay').classList.remove('open'); editingFilmId = null; }
+
+async function uploadThumb(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const prog = document.getElementById('upload-progress');
+  prog.style.display = 'block';
+  prog.textContent = 'Uploading…';
+  try {
+    const ext  = file.name.split('.').pop();
+    const name = 'thumbnails/' + Date.now() + '.' + ext;
+    const ref  = storage.ref(name);
+    const task = ref.put(file);
+    task.on('state_changed', snap => {
+      const pct = Math.round(snap.bytesTransferred / snap.totalBytes * 100);
+      prog.textContent = 'Uploading… ' + pct + '%';
+    });
+    await task;
+    const url = await ref.getDownloadURL();
+    document.getElementById('fm-thumbnail').value = url;
+    previewThumb(url);
+    prog.textContent = '✓ Uploaded';
+    setTimeout(() => { prog.style.display = 'none'; }, 2000);
+  } catch (e) {
+    prog.textContent = '✗ Upload failed: ' + e.message;
+  }
+  input.value = '';
+}
+
+function previewThumb(url) {
+  const img = document.getElementById('fm-preview');
+  if (url && url.startsWith('http')) { img.src = url; img.classList.remove('hidden'); }
+  else img.classList.add('hidden');
+}
+
+async function saveFilm() {
+  const title = get('fm-title');
+  if (!title) { toast('Film title is required', 'fail'); return; }
+  const data = {
+    thumbnail: get('fm-thumbnail'), title,
+    year: get('fm-year'),       duration: get('fm-duration'),
+    format: get('fm-format'),   language: get('fm-language'),
+    desc: get('fm-desc'),       venues: get('fm-venues'),
+    order: parseInt(get('fm-order')) || 99,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  try {
+    const filmId = editingFilmId || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    await db.collection('films').doc(filmId).set(data, { merge: true });
+    closeModal(); toast('Film saved!', 'ok'); loadFilms();
+  } catch (e) { toast('Error: ' + e.message, 'fail'); }
+}
+
+async function delFilm(id, title) {
+  if (!confirm('Delete "' + title + '"?\nThis cannot be undone.')) return;
+  try { await db.collection('films').doc(id).delete(); toast('Film deleted', 'ok'); loadFilms(); }
+  catch (e) { toast('Error: ' + e.message, 'fail'); }
+}
+
+// ── Seed default films from original site ─────────────
+async function seedFilms() {
+  if (!confirm('This will load all 12 films from the original website into the database.\nExisting film entries will not be overwritten. Continue?')) return;
+  toast('Loading default films…', 'info');
+  const defaults = [
+    { id:'a-minuscule-minority', order:1, title:'A Minuscule Minority', year:'2025', duration:'74 min', format:'4K Video', language:'Eng, Hin, Mar', desc:'A documentary on queer voices and their relationship to Indian electoral politics.', venues:'International Documentary and Short Film Festival of Kerala (IDSFFK), Trivandrum', thumbnail:'https://i.vimeocdn.com/video/2147977238-1bc35ad8d578c50a8bbbd9b2486dd05e37633149d94355c6611400998aefd25f-d_1280?region=us' },
+    { id:'an-election-diary', order:2, title:'An Election Diary', year:'2023', duration:'32 min', format:'4K Video', language:'Hindi', desc:'A documentary filmed during state assembly elections in northern India.', venues:'Centre for Modern Indian Studies, University of Gottingen, Germany · IDSFFK Kerala, Trivandrum', thumbnail:'https://i.vimeocdn.com/video/860678510-0aa9981a1807ce3c407052bdcbc8db3ec888f17cde624e7ee6c7971015772eaa-d_1280?region=us' },
+    { id:'lovely-villa', order:3, title:'Lovely Villa', year:'2019', duration:'32 min', format:'HD Video', language:'', desc:'A film on a modernist house in suburban Mumbai, tracing its design and the family memories associated with it. Co-directed with Rohan Shivkumar.', venues:'Urban Lens Festival (Delhi & Bangalore) · PSBT Open Frame · Kalaghoda Art Festival · Nomad Cafe · Arthshila, Santiniketan', thumbnail:'https://i.vimeocdn.com/video/1177656341-bcbc66121c442301c835dd34ae67d71f1f1bbfd68b722fc861571742fbd54462-d_1280?region=us' },
+    { id:'squeeze-lime-in-your-eye', order:4, title:'Squeeze Lime in Your Eye', year:'2018', duration:'58 min', format:'HD Video', language:'Eng, Hin, Ben', desc:'A documentary on art education and visual practice in India, shot across several art institutions.', venues:'Kochi-Muziris Biennale · Urban Lens Festival · PSBT Open Frame Festival · Chatterjee and Lal Art Gallery · Nomad Cafe', thumbnail:'https://i.vimeocdn.com/video/907768708-42ec80b89b8e0191a16edd55d0e41424c41bcf36127f073763917a637dfd9469-d_1280?region=us' },
+    { id:'the-garden-of-forgotten-snow', order:5, title:'The Garden of Forgotten Snow', year:'2017', duration:'30 min', format:'', language:'', desc:'An experimental film on art, identity and landscape. Sits between documentary and visual art practice.', venues:'Best Experimental Documentary (Signs Film Festival, Thrissur) · Documenta Madrid · Kochi-Muziris Biennale · Films on Art Portugal, Lisbon · IDSFFK Kerala · Gallery Chemould', thumbnail:'https://i.vimeocdn.com/video/768071944-6b4e84aa253b168681bef2e0e631076c9d281b359dbb75e7818db22065294d37-d_1280?region=us' },
+    { id:'nostalgia-for-the-future', order:6, title:'Nostalgia for the Future', year:'2017', duration:'54 min', format:'HD Video & 16mm Film', language:'', desc:'A documentary on the architecture of the modern Indian state — planned cities and institutional buildings. Co-directed with Rohan Shivkumar.', venues:'Best Documentary Award (IDSFFK Kerala) · Jury\'s Special Mention (Signs Film Festival) · Sharjah Architecture Triennial · Chicago Architecture Biennial · Pinakothek Der Moderne, Munich · Documenta 14', thumbnail:'https://i.vimeocdn.com/video/610058466-6f21f544c6cce83220bdbef1f98e0aecd09cdd911b10ab2a8384a865b6e46d79-d?f=webp&region=us' },
+    { id:'electric-shadows', order:7, title:'Electric Shadows', year:'2016', duration:'45 min', format:'HD Video', language:'Eng, Hin, Man', desc:'A documentary on the history of cinema projection and image-making, tracing practitioners across India and China.', venues:'Urban Lens Festival, Bangalore · PSBT Open Frame, Delhi · National Film Archive of India (NFAI), Pune', thumbnail:'https://i.vimeocdn.com/video/570856999-1d9c443217e1af51d0cfece7f3da66dd32577fcc89ea56e568fc66305d592e3c-d?f=webp&region=us' },
+    { id:'jaya-he-new-museum', order:8, title:'Jaya He New Museum', year:'2015', duration:'Multi-part series', format:'10 Short Films', language:'', desc:'A multi-part documentary project made for the GVK Museum at Mumbai Airport Terminal 2.', venues:'Permanent museum video installations and archive documentaries for the GVK Jaya He Airport Museum.', thumbnail:'https://i.vimeocdn.com/video/708456191-a469b4da188b5128f62dc9b6253913b9919d824657ca778536fb46367f55e5f0-d_1280?region=us' },
+    { id:'to-let-the-world-in', order:9, title:'To Let the World In (Volume I & II)', year:'2012–2013', duration:'93 & 53 min', format:'', language:'', desc:'A two-volume documentary on three generations of modern and contemporary visual art practice in India.', venues:'Audience Prize (Sheffield Doc/fest, UK) · APSA Nominated (Melbourne) · Mumbai International Film Festival · Tempo Film Festival, Stockholm · Asia Art Archive, Hong Kong · NGMA Mumbai', thumbnail:'https://i.vimeocdn.com/video/439136402-34cdac357acdb9b59821cea4bb735f80b24c73af0de5cb9440c94435804d6302-d?f=webp&region=us' },
+    { id:'vertical-city', order:10, title:'Vertical City', year:'2011', duration:'34 min', format:'HD Video', language:'Hindi, English', desc:'A documentary on Mumbai\'s slum rehabilitation programme and the conditions of life it produces in high-rise towers.', venues:'Special Jury Mention (IDSFFK Kerala) · Special Jury Mention (London International Doc Festival) · Melbourne International Film Festival · CPH DOX, Copenhagen · Sheffield Doc/fest · Dok-Leipzig', thumbnail:'https://i.vimeocdn.com/video/467134488-dbda31725a5539d9cd6537e9ecf04a6e9753bb1455547b4b2a737c6e8c26db9c-d_1280?region=us' },
+    { id:'certified-universal', order:11, title:'Certified Universal', year:'2009', duration:'15 min', format:'HD Video', language:'Hindi, Marathi, English', desc:'A short documentary on film certification and public exhibition in India. Selected for Forum Expanded, Berlinale.', venues:'Forum Expanded, Berlinale · National Gallery of Modern Art (Mumbai, Delhi, Bangalore) · IDSFFK Kerala · Indo American Arts Council, New York · Prague Indian Film Festival', thumbnail:'https://i.vimeocdn.com/video/439397741-aefc08b6e684ae00ef5cfa0c4f2d61f2a6b8dc8bc463fb2db7b2b464c88e6266-d?f=webp&region=us' },
+    { id:'snapshots-from-a-family-album', order:12, title:'Snapshots from a Family Album', year:'2004', duration:'63 min', format:'Digital Video', language:'Hindi, English', desc:'A documentary tracing personal and social histories through family photographs.', venues:'Hong Kong Arts Centre · Korean National University of Arts, Seoul · Kino Arsenal & Deutsche Guggenheim, Berlin · Bangalore Queer Film Festival · Sommerszene Vienna · NFAI Pune', thumbnail:'https://i.vimeocdn.com/video/439443051-251aaa34087344fa1a62b0f70ff8dc47ae87ad062c93391266e14d93b25a89a6-d_960?region=us' }
+  ];
+  try {
+    const batch = db.batch();
+    defaults.forEach(f => {
+      const { id, ...data } = f;
+      batch.set(db.collection('films').doc(id), { ...data, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    });
+    await batch.commit();
+    toast('All 12 films loaded!', 'ok');
+    loadFilms();
+  } catch (e) { toast('Error: ' + e.message, 'fail'); }
+}
+
+// ── Users ─────────────────────────────────────────────
+async function loadUsers() {
+  document.getElementById('ul-loading').style.display = 'block';
+  document.getElementById('ul-list').style.display = 'none';
+  try {
+    const snap = await db.collection('admins').get();
+    const list = document.getElementById('ul-list');
+    list.innerHTML = '';
+    const me = auth.currentUser?.email;
+    snap.forEach(doc => {
+      const d = doc.data();
+      const email = d.email || doc.id;
+      list.innerHTML += `<div class="user-item">
+        <div><div class="ui-email">${email}</div><div class="ui-role">Editor</div></div>
+        ${email === me
+          ? '<span class="ui-you">You</span>'
+          : `<button class="btn btn-danger" onclick="removeUser('${doc.id}','${email}')">Remove</button>`}
+      </div>`;
+    });
+    if (!snap.size) list.innerHTML = '<p style="color:var(--text-light);font-size:.88rem">No users found. Your account (signed in above) always has access.</p>';
+    document.getElementById('ul-loading').style.display = 'none';
+    list.style.display = 'block';
+  } catch (e) { document.getElementById('ul-loading').textContent = 'Error: ' + e.message; }
+}
+
+async function addUser() {
+  const email = document.getElementById('nu-email').value.trim();
+  const pass  = document.getElementById('nu-pass').value;
+  const st    = document.getElementById('nu-status');
+  if (!email || !pass) { st.textContent = 'Both email and password are required.'; return; }
+  if (pass.length < 6) { st.textContent = 'Password must be at least 6 characters.'; return; }
+  st.style.color = 'var(--text-light)'; st.textContent = 'Creating user…';
+  try {
+    // Use secondary app to avoid logging out current user
+    const secondary = firebase.initializeApp(firebase.app().options, 'secondary_' + Date.now());
+    const secAuth = firebase.auth(secondary);
+    await secAuth.createUserWithEmailAndPassword(email, pass);
+    await secAuth.signOut();
+    await secondary.delete();
+    // Record in admins collection
+    await db.collection('admins').doc(email.replace(/\./g, '_')).set({ email, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    st.style.color = 'var(--success)';
+    st.textContent = '✓ User created. Share the password with them.';
+    document.getElementById('nu-email').value = '';
+    document.getElementById('nu-pass').value = '';
+    loadUsers();
+  } catch (e) {
+    st.style.color = 'var(--error)';
+    st.textContent = '✗ ' + (e.code === 'auth/email-already-in-use' ? 'That email is already registered.' : e.message);
+  }
+}
+
+async function removeUser(docId, email) {
+  if (!confirm('Remove access for ' + email + '?\nThey will no longer be able to log in.')) return;
+  try { await db.collection('admins').doc(docId).delete(); toast('User removed', 'ok'); loadUsers(); }
+  catch (e) { toast('Error: ' + e.message, 'fail'); }
+}
+
+// ── Toast ─────────────────────────────────────────────
+function toast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast ' + (type || '') + ' show';
+  setTimeout(() => { el.className = 'toast ' + (type || ''); }, 3200);
+}
+</script>
+</body>
+</html>

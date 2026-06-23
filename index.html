@@ -38,13 +38,13 @@
     <section class="home-hero" aria-label="Introduction">
       <div class="container hero-grid">
         <div class="hero-content">
-          <div class="hero-role">Filmmaker & Cinematographer</div>
+          <div class="hero-role" data-cms="hero-role">Filmmaker & Cinematographer</div>
           <h1 class="hero-title text-display">
             <span>Avijit</span><br />
             <span>Mukul</span><br />
             <span>Kishore</span>
           </h1>
-          <p class="hero-description text-body">
+          <p class="hero-description text-body" data-cms="hero-desc">
             Based in Mumbai. Works in documentary and moving-image practice. Also teaches and curates film programmes.
           </p>
           <div class="hero-ctas">
@@ -91,21 +91,21 @@
           <span class="text-mono">Overview</span>
         </div>
         <div class="about-content reveal-element">
-          <h2 class="large-statement">
+          <h2 class="large-statement" data-cms="statement">
             Twenty years of work in <span class="italic-emphasis">non-fiction film</span>, cinema pedagogy, and moving-image archives in India.
           </h2>
           
           <div class="about-stats">
             <div class="stat-item">
-              <div class="stat-num">11</div>
+              <div class="stat-num" data-cms="stat-1">11</div>
               <div class="stat-label text-mono">Directed Films</div>
             </div>
             <div class="stat-item">
-              <div class="stat-num">50+</div>
+              <div class="stat-num" data-cms="stat-2">50+</div>
               <div class="stat-label text-mono">Cinematographies</div>
             </div>
             <div class="stat-item">
-              <div class="stat-num">20+</div>
+              <div class="stat-num" data-cms="stat-3">20+</div>
               <div class="stat-label text-mono">Years Pedagogy</div>
             </div>
           </div>
@@ -223,6 +223,8 @@
   <!-- GSAP Smooth Animation Stack -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/cms-loader.js"></script>
   <script>
     lucide.createIcons();
   </script>

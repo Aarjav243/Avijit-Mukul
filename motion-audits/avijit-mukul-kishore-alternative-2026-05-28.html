@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>avijit-mukul-kishore-alternative motion audit — 2026-05-28</title>
+  <style>
+    /* --- 1. DEMO SHELL TOKENS & OVERRIDES --- */
+    :root {
+      --bg: #0C0D0E;
+      --fg: #F3F4F6;
+      --border: #22252B;
+      --accent: #E5A93C; /* Cinematic Gold */
+      --loop-dim: rgba(243, 244, 246, 0.45);
+      --card-radius: 12px;
+      --card-padding: 20px;
+      --gap: 12px;
+      --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+      --mono: ui-monospace, "SF Mono", Menlo, monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--sans);
+      margin: 0;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 48px 24px;
+      line-height: 1.5;
+    }
+
+    /* --- 2. REPORT STRUCTURAL STYLES --- */
+    .report-hero {
+      margin-bottom: 40px;
+    }
+    .report-hero h1 {
+      font-size: 2.25rem;
+      margin: 0 0 8px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .report-hero__date {
+      font-family: var(--mono);
+      color: var(--loop-dim);
+      font-size: 0.875rem;
+      margin: 0 0 20px;
+    }
+    .report-hero__counts {
+      font-size: 1.1rem;
+      margin: 0 0 12px;
+    }
+    .report-hero__counts a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dashed var(--border);
+      margin-right: 12px;
+    }
+    .report-hero__counts a:hover {
+      border-bottom-style: solid;
+      color: var(--accent);
+    }
+    .report-hero__primary {
+      font-family: var(--mono);
+      color: var(--accent);
+      font-size: 0.875rem;
+      margin: 0;
+    }
+    .report-assessment {
+      margin: 32px 0;
+      font-size: 1.15rem;
+      line-height: 1.65;
+      color: var(--fg);
+      border-left: 2px solid var(--border);
+      padding-left: 20px;
+    }
+    .perspective-section {
+      margin: 64px 0;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+    }
+    .perspective-section h2 {
+      font-size: 1.5rem;
+      margin: 0 0 20px;
+      letter-spacing: -0.02em;
+    }
+    .perspective-section h3 {
+      font-size: 1.1rem;
+      margin: 24px 0 12px;
+      color: var(--accent);
+    }
+    .perspective-section ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    .perspective-section li {
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      color: var(--loop-dim);
+    }
+    .perspective-section li code {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      color: var(--fg);
+    }
+    .perspective-section__quote {
+      margin-top: 32px;
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.02);
+      border-left: 3px solid var(--accent);
+      font-size: 0.95rem;
+    }
+
+    /* Finding Rows Two-column */
+    .finding-row {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 32px;
+      align-items: start;
+      margin: 32px 0;
+      padding: 24px;
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .finding-row__prose h4 {
+      font-size: 1.25rem;
+      margin: 8px 0 12px;
+      font-weight: 600;
+    }
+    .finding-row__severity {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+    }
+    .finding-row__location {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--loop-dim);
+      margin-top: 12px;
+    }
+
+    /* --- 3. DEMO CARD WORKINGS --- */
+    .demo-card {
+      position: relative;
+      background: #111316;
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      padding: var(--card-padding);
+      outline: none;
+    }
+    .demo-card__header {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--fg);
+      margin-bottom: 4px;
+      padding-right: 72px;
+    }
+    .demo-card__subhead {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--loop-dim);
+      margin-bottom: var(--gap);
+    }
+    .demo-card__stage {
+      background: var(--bg);
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .demo-card__loop-indicator {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--loop-dim);
+      letter-spacing: 0.02em;
+    }
+
+    /* --- 4. ACCESSIBILITY GUARD --- */
+    @media (prefers-reduced-motion: reduce) {
+      .demo-card__loop-indicator {
+        display: none;
+      }
+      [class*="__motion-target"] {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+
+    /* --- 5. PER-FINDING MOTION CODES --- */
+    
+    /* Demo 1: Cinematic projector zoom keyframes */
+    @keyframes motion-1-projector {
+      0% {
+        opacity: 0;
+        transform: scale(0.96) translate3d(0, 0, 0);
+        filter: blur(4px);
+      }
+      15% {
+        opacity: 1;
+        filter: blur(0px);
+      }
+      66% {
+        opacity: 1;
+        transform: scale(1.04) translate3d(0, 0, 0);
+        filter: blur(0px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1.04) translate3d(0, 0, 0);
+        filter: blur(0px);
+      }
+    }
+    .demo-card-1__motion-target {
+      animation: motion-1-projector 3s infinite cubic-bezier(0.16, 1, 0.3, 1);
+      width: 120px;
+      height: 80px;
+      border-radius: 4px;
+      background: var(--border);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .demo-card-1__motion-target::after {
+      content: 'FILM STILL';
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+    }
+
+    /* Demo 2: Programmatic active indicator slide */
+    @keyframes motion-2-indicator {
+      0%, 20% {
+        transform: translateX(0);
+      }
+      50%, 70% {
+        transform: translateX(60px);
+      }
+      90%, 100% {
+        transform: translateX(0);
+      }
+    }
+    .demo-card-2__motion-target {
+      width: 140px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .demo-card-2__nav-row {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      padding-bottom: 4px;
+    }
+    .demo-card-2__nav-row span {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--loop-dim);
+      width: 50px;
+      text-align: center;
+    }
+    .demo-card-2__slider-track {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+      position: relative;
+    }
+    .demo-card-2__slider-bar {
+      width: 50px;
+      height: 2px;
+      background: var(--accent);
+      position: absolute;
+      top: -1px;
+      left: 15px;
+      animation: motion-2-indicator 3s infinite cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Table Recommendations */
+    .recommendations {
+      margin: 48px 0;
+    }
+    .recommendations table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin-top: 16px;
+    }
+    .recommendations th,
+    .recommendations td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .recommendations th {
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .reference-summary {
+      margin-top: 64px;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .reference-summary ul {
+      padding-left: 20px;
+      margin-top: 12px;
+    }
+    .reference-summary li {
+      margin-bottom: 8px;
+      color: var(--loop-dim);
+    }
+
+    @media (max-width: 768px) {
+      .finding-row {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      .demo-card {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero Header -->
+  <header class="report-hero">
+    <h1>avijit-mukul-kishore-alternative motion audit</h1>
+    <p class="report-hero__date">2026-05-28</p>
+    <p class="report-hero__counts">
+      <a href="#important-findings">🟡 Important: 2</a> ·
+      <a href="#opportunity-findings">🟢 Opportunities: 1</a>
+    </p>
+    <p class="report-hero__primary">Primary: Jakub Krehel — Production Polish</p>
+  </header>
+
+  <!-- Overall Assessment -->
+  <section class="report-assessment">
+    <p>
+      The baseline motion in Avijit Mukul Kishore's creative portfolio draft is highly commendable—avoiding typical animated AI-slop traps. Elements load decicively using clean GSAP timeline decays, and the page remains lightweight. To push the motion posture to an absolute, world-class production grade, we must close a few dynamic narrative gaps. Swapping tab controls instantly feels slightly dry, and the visual slideshow carousel transitions lack the beautiful sweeping scale and projector-lens focal zoom that evokes traditional celluloid work.
+    </p>
+  </section>
+
+  <!-- Section 1: Jakub Krehel -->
+  <section class="perspective-section" id="perspective-jakub">
+    <h2>Jakub Krehel — Production Polish</h2>
+
+    <div class="perspective-section__working-well">
+      <h3>What's Working Well</h3>
+      <ul>
+        <li>✓ Smooth GSAP slide entries on scroll are well-orchestrated with custom stagger delays — <code>js/main.js:70</code></li>
+        <li>✓ Entrance durations feel natural (duration 1s, decellerated exit), preventing chaotic snaps — <code>js/main.js:90</code></li>
+      </ul>
+    </div>
+
+    <div class="perspective-section__issues" id="jakub-issues">
+      <h3>Issues to Address</h3>
+      
+      <!-- Finding 2: Nav Tab Indicator -->
+      <div class="finding-row" id="finding-2">
+        <div class="finding-row__prose">
+          <p class="finding-row__severity">🟡 Important</p>
+          <h4>Kinetic Tab Active Slide Indicator</h4>
+          <p>
+            Clicking tab controls in <code>cinematographer.html</code> swaps rows instantly. However, the under-line indicator snaps into columns abruptly, causing high cognitive load when switching. Moving indicators programmatically (using absolute slider transforms) makes navigations feel continuous.
+          </p>
+          <p class="finding-row__location"><code>cinematographer.html:45</code> · <code>css/style.css:880</code></p>
+        </div>
+        <article class="demo-card" tabindex="-1">
+          <div class="demo-card__loop-indicator">↻ looping</div>
+          <div class="demo-card__header">Programmatic Slider Transition</div>
+          <div class="demo-card__subhead">350ms · ease-out-expo</div>
+          <div class="demo-card__stage">
+            <div class="demo-card-2__motion-target">
+              <div class="demo-card-2__nav-row">
+                <span>ALL</span>
+                <span>FILM</span>
+              </div>
+              <div class="demo-card-2__slider-track">
+                <div class="demo-card-2__slider-bar"></div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+    </div>
+
+    <p class="perspective-section__quote"><strong>Through Jakub's lens:</strong> An interface should behave like an organic material under touch. Adding slide continuity to the navigation tabs removes visual disruptions, making content transitions highly satisfying.</p>
+  </section>
+
+  <!-- Section 2: Jhey Tompkins -->
+  <section class="perspective-section" id="perspective-jhey">
+    <h2>Jhey Tompkins — Experimentation &amp; Delight</h2>
+
+    <div class="perspective-section__working-well">
+      <h3>What's Working Well</h3>
+      <ul>
+        <li>✓ Custom preconnect and fast loaded Outfit Display fonts give the brand a gorgeous contemporary editorial stance.</li>
+      </ul>
+    </div>
+
+    <div class="perspective-section__issues" id="jhey-issues">
+      <h3>Issues to Address</h3>
+      
+      <!-- Finding 1: Projector Carousel -->
+      <div class="finding-row" id="finding-1">
+        <div class="finding-row__prose">
+          <p class="finding-row__severity">🟡 Important</p>
+          <h4>Ken Burns Film-Projector Slide Zoom</h4>
+          <p>
+            The Hero visual carousel in <code>index.html</code> fades frames in and out with standard linear opacity switches. This feels static and misses a magnificent opportunity. Introducing a slow, continuous focal zoom (Ken Burns scaling) coupled with entry lens-blur fades mimics a beautiful physical movie projector frame transition, perfect for a cinematic portfolio.
+          </p>
+          <p class="finding-row__location"><code>index.html:48</code> · <code>css/style.css:387</code></p>
+        </div>
+        <article class="demo-card" tabindex="-1">
+          <div class="demo-card__loop-indicator">↻ looping</div>
+          <div class="demo-card__header">Projector Scale + Focus Fade</div>
+          <div class="demo-card__subhead">5s · linear + ease-out-expo</div>
+          <div class="demo-card__stage">
+            <div class="demo-card-1__motion-target"></div>
+          </div>
+        </article>
+      </div>
+
+    </div>
+
+    <p class="perspective-section__quote"><strong>Through Jhey's lens:</strong> A cinematographer's portfolio must feel like a camera is actively rolling. Adding custom scale sweeps and projector-blur entries breathes narrative life into static layouts.</p>
+  </section>
+
+  <!-- Section 3: Emil Kowalski -->
+  <section class="perspective-section" id="perspective-emil">
+    <h2>Emil Kowalski — Restraint &amp; Speed</h2>
+
+    <div class="perspective-section__working-well">
+      <h3>What's Working Well</h3>
+      <ul>
+        <li>✓ Button micro-interactions and tactile active scales are exceptionally fast (100ms transitions) — <code>css/style.css:340</code></li>
+        <li>✓ Inputs focus outline variables avoid excessive animation loops and trigger snaps instantly — <code>css/style.css:1152</code></li>
+      </ul>
+    </div>
+
+    <div class="perspective-section__issues" id="emil-issues">
+      <h3>Issues to Address</h3>
+      <p class="perspective-section__empty">No issues found at this severity level.</p>
+    </div>
+
+    <div class="perspective-section__opportunities">
+      <h3>Opportunities</h3>
+      <ul>
+        <li>💡 Snappy Keyboard Toggle Focus — <code>index.html</code></li>
+      </ul>
+    </div>
+
+    <p class="perspective-section__quote"><strong>Through Emil's lens:</strong> Great design means knowing where *not* to animate. High-frequency click pushes and input fields should remain static or instantaneous to optimize productivity.</p>
+  </section>
+
+  <!-- Combined Recommendations Tables -->
+  <section class="recommendations" id="important-findings">
+    <h2>🟡 Important (Should Fix)</h2>
+    <table>
+      <thead>
+        <tr><th>Issue</th><th>File</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Film Projector focal slideshow scaling</td>
+          <td><code>css/style.css:387</code> · <code>js/main.js:35</code></td>
+          <td>Configure slow Ken Burns scale zoom (scale 1 to 1.06) during active frame transitions.</td>
+        </tr>
+        <tr>
+          <td>Tab slider transition programmatics</td>
+          <td><code>cinematographer.html:45</code> · <code>css/style.css:880</code></td>
+          <td>Slide the active underline marker using CSS absolute positions and transforms instead of snapping.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="recommendations" id="opportunity-findings">
+    <h2>🟢 Opportunities (Could Enhance)</h2>
+    <table>
+      <thead>
+        <tr><th>Enhancement</th><th>Where</th><th>Impact</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Snappy Keyboard navigation indicators</td>
+          <td><code>css/style.css:76</code></td>
+          <td>Add specific focus rings to links when navigating via keyboard (Emil's speed rules).</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Lens Reference Summary -->
+  <section class="reference-summary">
+    <h2>Lens Reference Summary</h2>
+    <p><strong>Which lens was referenced most:</strong> Jakub Krehel — Production Polish</p>
+    <p><strong>Why:</strong> The portfolio's structure is clean but lacks dynamic slide continuity when handling standard navigations and tabs.</p>
+    <p><strong>If you want to lean differently:</strong></p>
+    <ul>
+      <li>To follow Emil more strictly: Remove scroll entrance staggers from lists entirely to speed up content access.</li>
+      <li>To follow Jakub more strictly: Retain our current deceleration times, keeping all spring/easing loops restricted under 350ms.</li>
+      <li>To follow Jhey more strictly: Introduce scroll-driven parallax layers to film stills as they pass the viewport.</li>
+    </ul>
+  </section>
+
+</body>
+</html>
