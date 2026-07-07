@@ -1,4 +1,16 @@
 {
+  "hosting": {
+    "site": "avijit-mukul-kishore-sit-e3368",
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "firestore.rules",
+      "firestore.indexes.json",
+      ".firebaserc",
+      "resume.md",
+      "node_modules"
+    ]
+  },
   "firestore": {
     "database": "(default)",
     "location": "asia-south1",

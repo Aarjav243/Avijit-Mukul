@@ -438,15 +438,17 @@
     <img id="fm-preview" class="thumb-preview hidden" src="" alt="thumbnail" onerror="this.classList.add('hidden')" />
 
     <div class="fgrp">
-      <label>Thumbnail Image</label>
+      <label>Trailer / Video Link (YouTube or Vimeo)</label>
       <div style="display:flex;gap:.5rem;align-items:center;">
-        <input type="url" id="fm-thumbnail" placeholder="https://i.vimeocdn.com/video/..." oninput="previewThumb(this.value)" style="flex:1" />
-        <label for="fm-upload" class="btn btn-ghost" style="cursor:pointer;white-space:nowrap;margin:0;font-size:.78rem;padding:.65rem 1rem;" title="Upload from your computer">
-          📁 Upload
-        </label>
-        <input type="file" id="fm-upload" accept="image/*" style="display:none" onchange="uploadThumb(this)" />
+        <input type="url" id="fm-videoLink" placeholder="https://www.youtube.com/watch?v=... or https://vimeo.com/..." oninput="autoFillThumb(this.value)" style="flex:1" />
       </div>
-      <div id="upload-progress" style="display:none;margin-top:.5rem;font-size:.78rem;color:var(--text-light);">Uploading…</div>
+      <div style="font-size:.75rem;color:var(--text-light);margin-top:.3rem;">Paste a YouTube link → thumbnail fills automatically below</div>
+    </div>
+    <div class="fgrp">
+      <label>Thumbnail Image URL</label>
+      <div style="display:flex;gap:.5rem;align-items:center;">
+        <input type="url" id="fm-thumbnail" placeholder="https://i.vimeocdn.com/video/... or paste any image URL" oninput="previewThumb(this.value)" style="flex:1" />
+      </div>
     </div>
     <div class="grid2">
       <div class="fgrp"><label>Film Title *</label><input type="text" id="fm-title" placeholder="A Minuscule Minority" /></div>
@@ -738,12 +740,13 @@ function filmCard(id, f) {
 function openModal(id) {
   editingFilmId = id;
   document.getElementById('modal-title').textContent = id ? 'Edit Film' : 'Add New Film';
-  ['fm-thumbnail','fm-title','fm-year','fm-duration','fm-format','fm-language','fm-desc','fm-venues','fm-order']
+  ['fm-videoLink','fm-thumbnail','fm-title','fm-year','fm-duration','fm-format','fm-language','fm-desc','fm-venues','fm-order']
     .forEach(fid => { document.getElementById(fid).value = ''; });
   document.getElementById('fm-preview').classList.add('hidden');
 
   if (id && filmsCache[id]) {
     const f = filmsCache[id];
+    set('fm-videoLink', f.videoLink);
     set('fm-thumbnail', f.thumbnail); set('fm-title', f.title);
     set('fm-year', f.year);           set('fm-duration', f.duration);
     set('fm-format', f.format);       set('fm-language', f.language);
@@ -756,7 +759,21 @@ function openModal(id) {
 
 function closeModal() { document.getElementById('film-overlay').classList.remove('open'); editingFilmId = null; }
 
-async function uploadThumb(input) {
+function autoFillThumb(url) {
+  if (!url) return;
+  let thumbUrl = null;
+  // YouTube: youtube.com/watch?v=ID or youtu.be/ID
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (ytMatch) {
+    thumbUrl = 'https://img.youtube.com/vi/' + ytMatch[1] + '/maxresdefault.jpg';
+  }
+  if (thumbUrl) {
+    document.getElementById('fm-thumbnail').value = thumbUrl;
+    previewThumb(thumbUrl);
+  }
+}
+
+async function uploadThumb_DISABLED(input) {
   const file = input.files[0];
   if (!file) return;
   const prog = document.getElementById('upload-progress');
@@ -793,6 +810,7 @@ async function saveFilm() {
   const title = get('fm-title');
   if (!title) { toast('Film title is required', 'fail'); return; }
   const data = {
+    videoLink: get('fm-videoLink'),
     thumbnail: get('fm-thumbnail'), title,
     year: get('fm-year'),       duration: get('fm-duration'),
     format: get('fm-format'),   language: get('fm-language'),

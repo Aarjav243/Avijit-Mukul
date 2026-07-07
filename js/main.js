@@ -319,42 +319,45 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Helper: Letterpress Stamp for Writing Cards ─────────────────────────
+  // Card container is always visible. Only children are animated.
+  // Initial hidden state is set via CSS (no GSAP conflict on container).
   function animateWritingCard(card) {
-    if (!window.gsap) return;
-    
     const title = card.querySelector('.writing-card-title');
-    const desc = card.querySelector('.writing-card-desc');
-    const meta = card.querySelector('.writing-card-meta');
-    const link = card.querySelector('.writing-card-link');
-    
-    window.gsap.killTweensOf([card, title, desc, meta, link]);
-    
-    // Snap the card container itself to visible since we'll animate children
-    window.gsap.set(card, { opacity: 1, y: 0, overwrite: true });
-    
-    // Initial setup: title is large, desc stays static
-    if (title) window.gsap.set(title, { opacity: 0, scale: 1.15, transformOrigin: "left center" });
-    if (meta) window.gsap.set(meta, { opacity: 0, y: 10 });
-    if (link) window.gsap.set(link, { opacity: 0 });
-    
+    const meta  = card.querySelector('.writing-card-meta');
+    const link  = card.querySelector('.writing-card-link');
+
+    if (!window.gsap) {
+      // No GSAP fallback — snap everything visible instantly
+      if (title) { title.style.opacity = '1'; title.style.transform = 'none'; }
+      if (meta)  { meta.style.opacity  = '1'; meta.style.transform  = 'none'; }
+      if (link)  { link.style.opacity  = '1'; }
+      return;
+    }
+
+    // Kill any stale tweens
+    window.gsap.killTweensOf([title, meta, link]);
+
+    // Ensure initial state matches CSS (in case GSAP ran before)
+    if (title) window.gsap.set(title, { opacity: 0, scale: 1.15, transformOrigin: 'left center', overwrite: true });
+    if (meta)  window.gsap.set(meta,  { opacity: 0, y: 10, overwrite: true });
+    if (link)  window.gsap.set(link,  { opacity: 0, overwrite: true });
+
     const tl = window.gsap.timeline();
-    
+
+    // 1. Title stamps in — heavy, decisive ease
     if (title) {
-      tl.to(title, {
-        opacity: 1,
-        scale: 1,
-        duration: 1.2,
-        ease: "power4.out" // Hard, heavy ease like a stamp
-      });
+      tl.to(title, { opacity: 1, scale: 1, duration: 1.2, ease: 'power4.out' });
     }
-    
+    // 2. Meta slides up alongside
     if (meta) {
-      tl.to(meta, { opacity: 1, y: 0, duration: 1.4, ease: "power2.out" }, "-=0.6");
+      tl.to(meta, { opacity: 1, y: 0, duration: 1.4, ease: 'power2.out' }, '-=0.6');
     }
+    // 3. Link fades in last
     if (link) {
-      tl.to(link, { opacity: 1, duration: 1.4, ease: "power2.out" }, "-=1.2");
+      tl.to(link, { opacity: 1, duration: 1.4, ease: 'power2.out' }, '-=1.2');
     }
   }
+
 
   // E. SETUP INTERSECTION OBSERVER
   const revealElements = document.querySelectorAll('.reveal-element');
@@ -380,8 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             animateFilmItem(entry.target);
           } else if (entry.target.classList.contains('writing-card')) {
-            // Writing cards: bespoke letterpress stamp reveal
-            animateWritingCard(entry.target);
+            return;
           } else {
             // Non-film elements: smooth fade-up as before
             if (window.gsap) {
@@ -425,9 +427,9 @@ document.addEventListener('DOMContentLoaded', () => {
           
           if (window.gsap) {
             window.gsap.killTweensOf(entry.target);
-            // For film items the container stays visible (opacity handled by animateFilmItem)
-            // For others, hide the container
-            if (!entry.target.classList.contains('film-item')) {
+            // film-item and writing-card handle their own visibility — don't reset them
+            if (!entry.target.classList.contains('film-item') &&
+                !entry.target.classList.contains('writing-card')) {
               window.gsap.set(entry.target, { opacity: 0, y: 30, overwrite: true });
             }
           }
@@ -458,7 +460,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }, observerOptions);
 
     revealElements.forEach(el => {
-      observer.observe(el);
+      // writing-card elements are handled by their own dedicated observer below
+      if (!el.classList.contains('writing-card')) {
+        observer.observe(el);
+      }
     });
     // Expose so CMS-rendered elements can be observed after the fact
     window.__observeNew = (els) => els.forEach(el => observer.observe(el));
@@ -481,6 +486,48 @@ document.addEventListener('DOMContentLoaded', () => {
       typewriters.forEach(t => animateTypewriter(t));
     });
   }
+
+  // ── Repeating observer for Writing Cards ──────────────────────────────────
+  // Lives OUTSIDE the revealElements conditional so it always runs.
+  // Animates on scroll-in, resets on scroll-out → replays on every scroll.
+  if ('IntersectionObserver' in window) {
+    const writingCards = document.querySelectorAll('.writing-card');
+    if (writingCards.length > 0) {
+
+      const resetWritingCard = (card) => {
+        if (!window.gsap) return;
+        const title = card.querySelector('.writing-card-title');
+        const meta  = card.querySelector('.writing-card-meta');
+        const link  = card.querySelector('.writing-card-link');
+        window.gsap.killTweensOf([title, meta, link]);
+        if (title) window.gsap.set(title, { opacity: 0, scale: 1.15, transformOrigin: 'left center', overwrite: true });
+        if (meta)  window.gsap.set(meta,  { opacity: 0, y: 10, overwrite: true });
+        if (link)  window.gsap.set(link,  { opacity: 0, overwrite: true });
+      };
+
+      const writingCardObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            animateWritingCard(entry.target);   // stamp in
+          } else {
+            resetWritingCard(entry.target);     // reset so it animates again next time
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px 60px 0px' });
+
+      writingCards.forEach(card => writingCardObserver.observe(card));
+
+      // Allow CMS-injected cards to be observed too
+      const prev__observeNew = window.__observeNew;
+      window.__observeNew = (els) => {
+        if (prev__observeNew) prev__observeNew(els);
+        els.forEach(el => {
+          if (el.classList.contains('writing-card')) writingCardObserver.observe(el);
+        });
+      };
+    }
+  }
+
 
   // 4. TAB FILTERING SYSTEM (cinematographer.html) — 3 unique animation modes
   const tabButtons = document.querySelectorAll('.tab-btn');

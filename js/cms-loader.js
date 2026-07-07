@@ -1,23 +1,53 @@
 // CMS Loader — reads content from Firestore and updates the page.
 // Falls back silently to hardcoded HTML if Firebase is unavailable.
 (function () {
+  console.log('[CMS] cms-loader.js running');
   const FIREBASE_CDN = 'https://www.gstatic.com/firebasejs/10.7.0/';
 
   function loadScript(src, cb) {
     const s = document.createElement('script');
     s.src = src;
     s.onload = cb;
+    s.onerror = function() { console.log('[CMS] failed to load:', src); };
     document.head.appendChild(s);
   }
 
   function detectPage() {
     const p = window.location.pathname;
+    if (p.includes('/films/')) return 'film-detail';
     if (p.includes('about')) return 'about';
     if (p.includes('contact')) return 'contact';
     if (p.includes('director')) return 'director';
     if (p.includes('cinematographer')) return 'cinematographer';
     if (p.includes('writing')) return 'writing';
     return 'homepage';
+  }
+
+  function toEmbedUrl(link) {
+    if (!link) return null;
+    // YouTube
+    const yt = link.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (yt) return 'https://www.youtube.com/embed/' + yt[1] + '?rel=0';
+    // Vimeo player URL already in embed format
+    if (link.includes('player.vimeo.com')) return link;
+    // Vimeo standard URL
+    const vm = link.match(/vimeo\.com\/(\d+)/);
+    if (vm) return 'https://player.vimeo.com/video/' + vm[1] + '?title=0&byline=0&portrait=0';
+    return null;
+  }
+
+  function applyFilmDetail(d) {
+    const wrap = document.getElementById('film-video-wrap');
+    if (!wrap) return;
+    if (d.videoLink) {
+      const embedUrl = toEmbedUrl(d.videoLink);
+      if (embedUrl) {
+        wrap.innerHTML = '<iframe src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
+        wrap.style.display = '';
+      }
+    } else if (d.hasOwnProperty('videoLink') && !d.videoLink) {
+      wrap.style.display = 'none';
+    }
   }
 
   function setText(field, val) {
@@ -146,7 +176,7 @@
     const container = document.getElementById('cms-writing-list');
     if (!container || !entries.length) return;
     container.innerHTML = entries.map(e => `
-      <article class="writing-card reveal-element">
+      <article class="writing-card">
         <div class="writing-card-meta">
           <span>${e.publisher || ''}</span>
           <span>${e.year || ''}</span>
@@ -163,15 +193,33 @@
         </div>
       </article>`).join('');
     if (window.lucide) lucide.createIcons();
+    // Register new writing cards with the dedicated scroll-reveal observer
+    const newCards = container.querySelectorAll('.writing-card');
+    if (window.__observeNew) window.__observeNew(Array.from(newCards));
   }
 
   function init() {
+    console.log('[CMS] init, firebase:', !!window.firebase, 'page:', detectPage());
     if (!window.firebase) return;
-    firebase.initializeApp(firebaseConfig);
+    try { firebase.initializeApp(firebaseConfig); } catch(e) { console.log('[CMS] initializeApp err:', e.message); }
     const db = firebase.firestore();
     const page = detectPage();
 
-    if (page === 'homepage') {
+    if (page === 'film-detail') {
+      const slug = window.location.pathname.split('/films/')[1].replace('.html', '');
+      console.log('[CMS] film slug:', slug);
+      db.collection('films').doc(slug).get()
+        .then(doc => {
+          if (doc.exists) {
+            const data = doc.data();
+            console.log('[CMS] film data:', JSON.stringify(data));
+            applyFilmDetail(data);
+          } else {
+            console.log('[CMS] no doc found for slug:', slug);
+          }
+        })
+        .catch(e => { console.log('[CMS] error:', e); });
+    } else if (page === 'homepage') {
       db.collection('content').doc('homepage').get()
         .then(doc => { if (doc.exists) applyHomepage(doc.data()); })
         .catch(() => {});
@@ -221,6 +269,10 @@
 
   // Load Firebase compat SDK then run
   loadScript(FIREBASE_CDN + 'firebase-app-compat.js', function () {
-    loadScript(FIREBASE_CDN + 'firebase-firestore-compat.js', init);
+    console.log('[CMS] firebase-app loaded');
+    loadScript(FIREBASE_CDN + 'firebase-firestore-compat.js', function() {
+      console.log('[CMS] firebase-firestore loaded');
+      init();
+    });
   });
 })();

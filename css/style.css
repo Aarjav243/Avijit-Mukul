@@ -1054,7 +1054,10 @@ header.site-nav .nav-container {
   gap: 4rem;
   padding-bottom: 3rem;
   border-bottom: 1px solid var(--border-color);
+  /* Card container is always visible.
+     Only the children animate via GSAP (letterpress stamp). */
 }
+
 
 .writing-card-meta {
   font-family: var(--font-mono);

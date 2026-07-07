@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -42,14 +42,7 @@
         <p class="film-detail-tagline">An experimental inquiry into art, identity, and landscape — observing changing spaces and historical reflections.</p>
       </header>
 
-      <div class="film-embed-wrap">
-        <iframe
-          src="https://player.vimeo.com/video/237778852?title=0&byline=0&portrait=0"
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowfullscreen
-          title="The Garden of Forgotten Snow — Avijit Mukul Kishore">
-        </iframe>
-      </div>
+      <div class="film-embed-wrap" id="film-video-wrap"></div>
 
       <div class="film-detail-body">
         <div class="film-synopsis">
@@ -113,5 +106,32 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="../js/main.js"></script>
   <script>lucide.createIcons();</script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <script>
+    (function() {
+      try { firebase.initializeApp({apiKey:"AIzaSyB4gFXohZJg-gLOa_2Lfh3rTjapcX0-iTo",authDomain:"avijit-mukul-kishore-sit-e3368.firebaseapp.com",projectId:"avijit-mukul-kishore-sit-e3368",storageBucket:"avijit-mukul-kishore-sit-e3368.firebasestorage.app",messagingSenderId:"633723739617",appId:"1:633723739617:web:a6c047298cba20367486a0"}); } catch(e) {}
+      var db = firebase.firestore();
+      var slug = window.location.pathname.split('/films/')[1].replace('.html','');
+      db.collection('films').doc(slug).get().then(function(doc) {
+        var wrap = document.getElementById('film-video-wrap');
+        if (!wrap) return;
+        if (!doc.exists || !doc.data().videoLink) { wrap.style.display='none'; return; }
+        var link = doc.data().videoLink;
+        var embed = null;
+        var yt = link.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+        if (yt) embed = 'https://www.youtube.com/embed/' + yt[1] + '?rel=0';
+        var vm = !embed && link.match(/vimeo\.com\/(\d+)/);
+        if (vm) embed = 'https://player.vimeo.com/video/' + vm[1] + '?title=0&byline=0&portrait=0';
+        if (embed) {
+          wrap.innerHTML = '<iframe src="' + embed + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
+        } else { wrap.style.display='none'; }
+      }).catch(function() {});
+    })();
+  </script>
 </body>
 </html>
+
+
+
+
