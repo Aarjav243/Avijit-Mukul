@@ -193,9 +193,7 @@
         </div>
       </article>`).join('');
     if (window.lucide) lucide.createIcons();
-    // Register new writing cards with the dedicated scroll-reveal observer
-    const newCards = container.querySelectorAll('.writing-card');
-    if (window.__observeNew) window.__observeNew(Array.from(newCards));
+    if (window.__writingCardsInit) window.__writingCardsInit();
   }
 
   function init() {

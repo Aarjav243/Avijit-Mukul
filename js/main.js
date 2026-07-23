@@ -318,47 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ── Helper: Letterpress Stamp for Writing Cards ─────────────────────────
-  // Card container is always visible. Only children are animated.
-  // Initial hidden state is set via CSS (no GSAP conflict on container).
-  function animateWritingCard(card) {
-    const title = card.querySelector('.writing-card-title');
-    const meta  = card.querySelector('.writing-card-meta');
-    const link  = card.querySelector('.writing-card-link');
-
-    if (!window.gsap) {
-      // No GSAP fallback — snap everything visible instantly
-      if (title) { title.style.opacity = '1'; title.style.transform = 'none'; }
-      if (meta)  { meta.style.opacity  = '1'; meta.style.transform  = 'none'; }
-      if (link)  { link.style.opacity  = '1'; }
-      return;
-    }
-
-    // Kill any stale tweens
-    window.gsap.killTweensOf([title, meta, link]);
-
-    // Ensure initial state matches CSS (in case GSAP ran before)
-    if (title) window.gsap.set(title, { opacity: 0, scale: 1.15, transformOrigin: 'left center', overwrite: true });
-    if (meta)  window.gsap.set(meta,  { opacity: 0, y: 10, overwrite: true });
-    if (link)  window.gsap.set(link,  { opacity: 0, overwrite: true });
-
-    const tl = window.gsap.timeline();
-
-    // 1. Title stamps in — heavy, decisive ease
-    if (title) {
-      tl.to(title, { opacity: 1, scale: 1, duration: 1.2, ease: 'power4.out' });
-    }
-    // 2. Meta slides up alongside
-    if (meta) {
-      tl.to(meta, { opacity: 1, y: 0, duration: 1.4, ease: 'power2.out' }, '-=0.6');
-    }
-    // 3. Link fades in last
-    if (link) {
-      tl.to(link, { opacity: 1, duration: 1.4, ease: 'power2.out' }, '-=1.2');
-    }
-  }
-
-
   // E. SETUP INTERSECTION OBSERVER
   const revealElements = document.querySelectorAll('.reveal-element');
   
@@ -382,8 +341,6 @@ document.addEventListener('DOMContentLoaded', () => {
               window.gsap.set(entry.target, { opacity: 1, y: 0, overwrite: true });
             }
             animateFilmItem(entry.target);
-          } else if (entry.target.classList.contains('writing-card')) {
-            return;
           } else {
             // Non-film elements: smooth fade-up as before
             if (window.gsap) {
@@ -427,9 +384,8 @@ document.addEventListener('DOMContentLoaded', () => {
           
           if (window.gsap) {
             window.gsap.killTweensOf(entry.target);
-            // film-item and writing-card handle their own visibility — don't reset them
-            if (!entry.target.classList.contains('film-item') &&
-                !entry.target.classList.contains('writing-card')) {
+            // film-item handles its own visibility — don't reset it
+            if (!entry.target.classList.contains('film-item')) {
               window.gsap.set(entry.target, { opacity: 0, y: 30, overwrite: true });
             }
           }
@@ -459,12 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }, observerOptions);
 
-    revealElements.forEach(el => {
-      // writing-card elements are handled by their own dedicated observer below
-      if (!el.classList.contains('writing-card')) {
-        observer.observe(el);
-      }
-    });
+    revealElements.forEach(el => observer.observe(el));
     // Expose so CMS-rendered elements can be observed after the fact
     window.__observeNew = (els) => els.forEach(el => observer.observe(el));
   } else {
@@ -487,70 +438,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ── Repeating observer for Writing Cards ──────────────────────────────────
-  // Lives OUTSIDE the revealElements conditional so it always runs.
-  // Animates on scroll-in, resets on scroll-out → replays on every scroll.
-  if ('IntersectionObserver' in window) {
-    const writingCards = document.querySelectorAll('.writing-card');
-    if (writingCards.length > 0) {
-
-      const resetWritingCard = (card) => {
-        if (!window.gsap) return;
-        const title = card.querySelector('.writing-card-title');
-        const meta  = card.querySelector('.writing-card-meta');
-        const link  = card.querySelector('.writing-card-link');
-        window.gsap.killTweensOf([title, meta, link]);
-        if (title) window.gsap.set(title, { opacity: 0, scale: 1.15, transformOrigin: 'left center', overwrite: true });
-        if (meta)  window.gsap.set(meta,  { opacity: 0, y: 10, overwrite: true });
-        if (link)  window.gsap.set(link,  { opacity: 0, overwrite: true });
-      };
-
-      const writingCardObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            animateWritingCard(entry.target);   // stamp in
-          } else {
-            resetWritingCard(entry.target);     // reset so it animates again next time
-          }
-        });
-      }, { threshold: 0.1, rootMargin: '0px 0px 60px 0px' });
-
-      writingCards.forEach(card => writingCardObserver.observe(card));
-
-      // Allow CMS-injected cards to be observed too
-      const prev__observeNew = window.__observeNew;
-      window.__observeNew = (els) => {
-        if (prev__observeNew) prev__observeNew(els);
-        els.forEach(el => {
-          if (el.classList.contains('writing-card')) writingCardObserver.observe(el);
-        });
-      };
-    }
-  }
-
-
-  // 4. TAB FILTERING SYSTEM (cinematographer.html) — 3 unique animation modes
+  // 4. TAB FILTERING SYSTEM (cinematographer.html) — iris wipe transition + timecode-scramble meta text
   const tabButtons = document.querySelectorAll('.tab-btn');
   const cinemaRows = document.querySelectorAll('.cinema-row');
   const tabIndicator = document.querySelector('.tab-indicator-bar');
-
-  // Track active filter globally so scroll-observer can pick the right animation
-  let activeTabFilter = 'all';
+  const cinemaGrid = document.querySelector('.cinema-dual-grid');
 
   if (tabButtons.length > 0 && cinemaRows.length > 0) {
 
-    // ── Inject clapperboard line element into every film row ──────────────────
-    cinemaRows.forEach(row => {
-      if (row.getAttribute('data-category') === 'film') {
-        if (!row.querySelector('.cinema-clap-line')) {
-          const line = document.createElement('span');
-          line.className = 'cinema-clap-line';
-          row.prepend(line);
-        }
-      }
-    });
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // ── Indicator bar position helper ─────────────────────────────────────────
     const updateIndicator = (activeBtn) => {
       if (tabIndicator) {
         tabIndicator.style.left = `${activeBtn.offsetLeft}px`;
@@ -558,263 +455,273 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
 
+    const applyFilter = (filterValue) => {
+      document.querySelectorAll('.cinema-row').forEach(row => {
+        const cat = row.getAttribute('data-category');
+        row.style.display = (filterValue === 'all' || cat === filterValue) ? 'grid' : 'none';
+      });
+    };
+
+    // Timecode-style scramble: meta text (e.g. "Cinematographer") flickers before locking in
+    const scrambleChars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ:';
+    const scrambleText = (el, duration = 900) => {
+      if (!el.dataset.finalText) el.dataset.finalText = el.textContent;
+      const finalText = el.dataset.finalText;
+      if (reduceMotion || !finalText.trim()) return;
+      const token = Symbol();
+      el._scrambleToken = token;
+      const start = performance.now();
+      const tick = (now) => {
+        if (el._scrambleToken !== token) return;
+        const progress = Math.min((now - start) / duration, 1);
+        const revealCount = Math.floor(progress * finalText.length);
+        el.textContent = finalText.split('').map((ch, i) => {
+          if (ch === ' ' || i < revealCount) return ch;
+          return scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+        }).join('');
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.textContent = finalText;
+      };
+      requestAnimationFrame(tick);
+    };
+
+    const scrambleVisibleMeta = () => {
+      document.querySelectorAll('.cinema-row').forEach(row => {
+        if (row.style.display === 'none') return;
+        const meta = row.querySelector('.cinema-meta-block');
+        if (meta) scrambleText(meta);
+      });
+    };
+
     const activeTab = document.querySelector('.tab-btn.active');
     if (activeTab) setTimeout(() => updateIndicator(activeTab), 100);
 
-    // ── RESET: snap a row back to its hidden initial state ────────────────────
-    const resetCinemaRow = (row, filter) => {
-      if (!window.gsap) return;
-      window.gsap.killTweensOf(row);
-      const children = Array.from(row.querySelectorAll('.cinema-title-block, .cinema-meta-block'));
-      children.forEach(c => window.gsap.killTweensOf(c));
+    scrambleVisibleMeta();
 
-      const f = filter || activeTabFilter;
-      if (f === 'art') {
-        window.gsap.set(row, { opacity: 0, filter: 'blur(6px)', y: 0, x: 0, overwrite: true });
-      } else if (f === 'film') {
-        window.gsap.set(row, { opacity: 0, y: 0, x: 0, filter: 'none', overwrite: true });
-        window.gsap.set(children, { opacity: 0, y: 8, overwrite: true });
-        const clapLine = row.querySelector('.cinema-clap-line');
-        if (clapLine) window.gsap.set(clapLine, { width: '0%', opacity: 1, overwrite: true });
-      } else {
-        // 'all' — slide state
-        window.gsap.set(row, { opacity: 0, x: 0, y: 0, filter: 'none', overwrite: true });
-      }
+    // Re-apply current filter to newly CMS-rendered rows
+    window.__tabsInit = () => {
+      const current = document.querySelector('.tab-btn.active');
+      applyFilter(current ? current.getAttribute('data-filter') : 'all');
+      scrambleVisibleMeta();
     };
 
-    // ── ANIMATE: All Collaborations — alternating L/R slide ──────────────────
-    const animateCinemaRowAll = (row, index, baseDelay = 0) => {
-      if (!window.gsap) { row.style.opacity = '1'; return; }
-      window.gsap.killTweensOf(row);
-      const fromX = index % 2 === 0 ? -50 : 50;
-      // Reset children that may have been hidden by film-mode tab switch
-      const children = row.querySelectorAll('.cinema-title-block, .cinema-meta-block');
-      window.gsap.set(children, { opacity: 1, y: 0, overwrite: true });
-      window.gsap.set(row, { opacity: 0, x: fromX, y: 0, filter: 'none', overwrite: true });
-      window.gsap.to(row, {
-        opacity: 1,
-        x: 0,
-        duration: 1.3,
-        ease: 'power3.out',
-        delay: baseDelay,
-        overwrite: 'auto'
-      });
-    };
-
-    // ── ANIMATE: Documentary & Fiction — clapperboard sweep + text rise ───────
-    const animateCinemaRowFilm = (row, index, baseDelay = 0) => {
-      if (!window.gsap) { row.style.opacity = '1'; return; }
-      window.gsap.killTweensOf(row);
-      const clapLine = row.querySelector('.cinema-clap-line');
-      const children = Array.from(row.querySelectorAll('.cinema-title-block, .cinema-meta-block'));
-      children.forEach(c => window.gsap.killTweensOf(c));
-
-      const delay = baseDelay;
-
-      window.gsap.set(row, { opacity: 1, x: 0, y: 0, filter: 'none', overwrite: true });
-      window.gsap.set(children, { opacity: 0, y: 12, overwrite: true });
-
-      const tl = window.gsap.timeline({ delay });
-      if (clapLine) {
-        tl.set(clapLine, { width: '0%', opacity: 1 })
-          .to(clapLine, { width: '100%', duration: 0.65, ease: 'power2.inOut' })
-          .to(clapLine, { opacity: 0, duration: 0.35, ease: 'power1.out' }, '+=0.06');
-      }
-      tl.to(children, {
-        opacity: 1,
-        y: 0,
-        stagger: 0.12,
-        duration: 1.1,
-        ease: 'power3.out',
-        overwrite: 'auto'
-      }, clapLine ? '-=0.45' : 0);
-    };
-
-    // ── ANIMATE: Visual Art Projects — blur dissolve to clarity ───────────────
-    const animateCinemaRowArt = (row, index, baseDelay = 0) => {
-      if (!window.gsap) { row.style.opacity = '1'; return; }
-      window.gsap.killTweensOf(row);
-      window.gsap.set(row, { opacity: 0, filter: 'blur(6px)', x: 0, y: 0, overwrite: true });
-      window.gsap.to(row, {
-        opacity: 1,
-        filter: 'blur(0px)',
-        duration: 1.6,
-        ease: 'power2.out',
-        delay: baseDelay,
-        overwrite: 'auto'
-      });
-    };
-
-    // ── Initial state: hide all rows so first scroll-in feels fresh ───────────
-    cinemaRows.forEach(row => {
-      if (window.gsap) {
-        window.gsap.set(row, { opacity: 0, x: -50, filter: 'none', overwrite: true });
-      } else {
-        row.style.opacity = '0';
-      }
-    });
-
-    // Tracks rows that have already been animated — shared between observer and tab handler
-    const revealedRows = new Set();
-
-    // ── IntersectionObserver for cinema-rows (scroll-reveal per row) ──────────
-    if ('IntersectionObserver' in window) {
-      const cinemaObserverOptions = {
-        root: null,
-        threshold: 0.05,
-        // 100px top margin: pre-trigger animation when scrolling UP
-        // 40px bottom margin: pre-trigger animation when scrolling DOWN
-        rootMargin: '100px 0px 40px 0px'
-      };
-
-      const cinemaObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          const row = entry.target;
-
-          if (entry.isIntersecting) {
-            // Guard: skip only when row is genuinely visible (opacity > 0.1).
-            // If row is in revealedRows but invisible (was reset while tracked), force re-animate.
-            if (revealedRows.has(row) && window.gsap && window.gsap.getProperty(row, 'opacity') > 0.1) {
-              return;
-            }
-
-            revealedRows.add(row);
-
-            if (activeTabFilter === 'art') {
-              animateCinemaRowArt(row, 0, 0);
-            } else if (activeTabFilter === 'film') {
-              animateCinemaRowFilm(row, 0, 0);
-            } else {
-              const globalIndex = Array.from(cinemaRows).indexOf(row);
-              animateCinemaRowAll(row, globalIndex, 0);
-            }
-
-          } else {
-            // Row left the viewport (either scrolled past the top or bottom).
-            // Reset it so it animates fresh next time it scrolls into view (up or down).
-            revealedRows.delete(row);
-            resetCinemaRow(row, activeTabFilter);
-          }
-        });
-      }, cinemaObserverOptions);
-
-      cinemaRows.forEach(row => cinemaObserver.observe(row));
-
-      // Expose so CMS-rendered rows can be added to observer later
-      window.__observeCinemaRows = (newRows) => {
-        newRows.forEach(row => {
-          if (!row.querySelector('.cinema-clap-line') && row.getAttribute('data-category') === 'film') {
-            const line = document.createElement('span');
-            line.className = 'cinema-clap-line';
-            row.prepend(line);
-          }
-          if (window.gsap) window.gsap.set(row, { opacity: 0, x: -50, filter: 'none', overwrite: true });
-          cinemaObserver.observe(row);
-        });
-      };
-      window.__tabsInit = () => {
-        if (window.__observeCinemaRows) {
-          window.__observeCinemaRows(document.querySelectorAll('.cinema-row'));
-        }
-      };
-    }
-
-    // ── Tab click handler ─────────────────────────────────────────────────────
     tabButtons.forEach(btn => {
       btn.addEventListener('click', () => {
+        if (btn.classList.contains('active')) return;
         tabButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         updateIndicator(btn);
 
-        const previousFilter = activeTabFilter;          // what was showing before
         const filterValue = btn.getAttribute('data-filter');
-        if (previousFilter === filterValue) return;      // same tab, nothing to do
 
-        activeTabFilter = filterValue;
-        revealedRows.clear();
-
-        // ── Classify rows using previousFilter (not DOM state, which can be
-        //    mid-animation and unreliable) ──────────────────────────────────────
-
-        // Rows that should be visible in the NEW filter — live query includes CMS-rendered rows
-        const rowsToShow = Array.from(document.querySelectorAll('.cinema-row')).filter(row => {
-          const cat = row.getAttribute('data-category');
-          return filterValue === 'all' || cat === filterValue;
-        });
-
-        // Among those, which were ALREADY visible (matched the previous filter)
-        // These must NOT be touched — no reset, no re-animation
-        const rowsAlreadyVisible = rowsToShow.filter(row => {
-          const cat = row.getAttribute('data-category');
-          return previousFilter === 'all' || cat === previousFilter;
-        });
-
-        // Among those, which were HIDDEN (didn't match the previous filter)
-        // These need to be revealed — observer will animate them
-        const rowsToReveal = rowsToShow.filter(row => {
-          const cat = row.getAttribute('data-category');
-          return previousFilter !== 'all' && cat !== previousFilter;
-        });
-
-        // Rows that must leave the screen — live query includes CMS-rendered rows
-        const rowsToHide = Array.from(document.querySelectorAll('.cinema-row')).filter(row => {
-          const cat = row.getAttribute('data-category');
-          return filterValue !== 'all' && cat !== filterValue;
-        });
-
-        // 1. Protect already-visible rows — add to revealedRows so observer
-        //    leaves them exactly as they are (fully visible, no flash)
-        rowsAlreadyVisible.forEach(row => {
-          revealedRows.add(row);
-          // Ensure GSAP state is clean (opacity:1, no residual transforms)
-          if (window.gsap) {
-            window.gsap.killTweensOf(row);
-            window.gsap.set(row, { opacity: 1, x: 0, filter: 'none', overwrite: true });
-            const children = row.querySelectorAll('.cinema-title-block, .cinema-meta-block');
-            if (children.length) window.gsap.set(children, { opacity: 1, y: 0, overwrite: true });
-          }
-        });
-
-        // 2. Fade out and hide departing rows
-        if (window.gsap && rowsToHide.length) {
-          rowsToHide.forEach(row => {
-            window.gsap.killTweensOf(row);
-            window.gsap.to(row, {
-              opacity: 0, duration: 0.25, ease: 'power2.in', overwrite: true,
-              onComplete: () => { row.style.display = 'none'; }
-            });
-          });
-        } else {
-          rowsToHide.forEach(row => { row.style.display = 'none'; });
+        // Iris wipe: close, swap the row set behind the wipe, reopen onto the new set
+        if (reduceMotion || !cinemaGrid) {
+          applyFilter(filterValue);
+          scrambleVisibleMeta();
+          return;
         }
-
-        // 3. Make newly-arriving rows visible and animate them directly
-        rowsToReveal.forEach((row, i) => {
-          row.style.display = 'grid';
-          revealedRows.add(row);
-          if (window.gsap) {
-            window.gsap.killTweensOf(row);
-            const children = row.querySelectorAll('.cinema-title-block, .cinema-meta-block');
-            window.gsap.set(children, { opacity: 1, y: 0, overwrite: true });
-            const cat = row.getAttribute('data-category');
-            if (filterValue === 'art') {
-              animateCinemaRowArt(row, i, i * 0.06);
-            } else if (filterValue === 'film') {
-              animateCinemaRowFilm(row, i, i * 0.06);
-            } else {
-              const globalIndex = Array.from(cinemaRows).indexOf(row);
-              animateCinemaRowAll(row, globalIndex, i * 0.06);
-            }
-          }
-        });
+        cinemaGrid.classList.add('iris-closing');
+        setTimeout(() => {
+          applyFilter(filterValue);
+          scrambleVisibleMeta();
+          cinemaGrid.classList.remove('iris-closing');
+        }, 500);
       });
     });
 
-    // Handle resize for indicator bar
     window.addEventListener('resize', () => {
       const currentActive = document.querySelector('.tab-btn.active');
       if (currentActive) updateIndicator(currentActive);
     });
+  }
+
+  // 4b. DEPTH PARALLAX (cinematographer.html) — title/meta drift at different rates, easing behind scroll
+  if (cinemaRows.length > 0 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const vh = () => window.innerHeight;
+    const parallaxState = new WeakMap();
+    const AMPLITUDE = 24;
+    const EASE = 0.06; // lower = slower, more visible lag behind the scroll
+
+    const computeTargets = () => {
+      document.querySelectorAll('.cinema-row').forEach(row => {
+        const rect = row.getBoundingClientRect();
+        const inRange = !(rect.bottom < -150 || rect.top > vh() + 150);
+        const target = inRange ? (rect.top + rect.height / 2 - vh() / 2) / vh() : 0;
+        const state = parallaxState.get(row) || { current: 0, target: 0 };
+        state.target = target;
+        parallaxState.set(row, state);
+      });
+    };
+
+    let rafId = null;
+    const tick = () => {
+      let stillMoving = false;
+      document.querySelectorAll('.cinema-row').forEach(row => {
+        const state = parallaxState.get(row);
+        if (!state) return;
+        const diff = state.target - state.current;
+        if (Math.abs(diff) > 0.0008) stillMoving = true;
+        state.current += diff * EASE;
+        const title = row.querySelector('.cinema-title-block');
+        const meta = row.querySelector('.cinema-meta-block');
+        if (title) title.style.transform = `translateY(${state.current * -AMPLITUDE}px)`;
+        if (meta) meta.style.transform = `translateY(${state.current * AMPLITUDE}px)`;
+      });
+      rafId = stillMoving ? requestAnimationFrame(tick) : null;
+    };
+
+    const onScroll = () => {
+      computeTargets();
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // Re-run after CMS re-renders rows, so freshly injected rows get their first parallax pass
+    const prevTabsInit = window.__tabsInit;
+    window.__tabsInit = () => {
+      if (prevTabsInit) prevTabsInit();
+      onScroll();
+    };
+  }
+
+  // 4c. TIMECODE SCROLL COUNTER (cinematographer.html) — synthetic timecode readout tied to scroll position
+  const timecodeEl = document.getElementById('timecode-counter');
+  const timecodeValueEl = timecodeEl && timecodeEl.querySelector('.timecode-value');
+  if (timecodeEl && timecodeValueEl && cinemaRows.length > 0) {
+    const pad = (n) => String(n).padStart(2, '0');
+    const FPS = 24;
+
+    const updateTimecode = () => {
+      const total = document.querySelectorAll('.cinema-row').length;
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollable > 0 ? Math.min(1, Math.max(0, window.scrollY / scrollable)) : 0;
+
+      timecodeEl.classList.toggle('visible', window.scrollY > 40);
+
+      const totalFrames = Math.round(progress * total * FPS);
+      const frames = totalFrames % FPS;
+      const totalSeconds = Math.floor(totalFrames / FPS);
+      const seconds = totalSeconds % 60;
+      const totalMinutes = Math.floor(totalSeconds / 60);
+      const minutes = totalMinutes % 60;
+      const hours = Math.floor(totalMinutes / 60);
+
+      timecodeValueEl.textContent = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}:${pad(frames)}`;
+    };
+
+    window.addEventListener('scroll', updateTimecode, { passive: true });
+    updateTimecode();
+
+    const prevTabsInitTC = window.__tabsInit;
+    window.__tabsInit = () => {
+      if (prevTabsInitTC) prevTabsInitTC();
+      updateTimecode();
+    };
+  }
+
+  // 4d. FILM-STRIP SCROLL TRACK (cinematographer.html) — perforated rails (both edges) fill as the page scrolls
+  const filmstripFills = document.querySelectorAll('.filmstrip-fill');
+  if (filmstripFills.length > 0) {
+    const updateFilmstrip = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollable > 0 ? Math.min(1, Math.max(0, window.scrollY / scrollable)) : 0;
+      filmstripFills.forEach((el) => {
+        el.style.height = `${progress * 100}%`;
+      });
+    };
+
+    window.addEventListener('scroll', updateFilmstrip, { passive: true });
+    window.addEventListener('resize', updateFilmstrip, { passive: true });
+    updateFilmstrip();
+  }
+
+  // 4e. WRITING PAGE — card scroll-reveal, gold progress line, title glow, drop-in nodes (writing.html)
+  const writingProgressFill = document.querySelector('.writing-progress-line-fill');
+  const writingProgressWrap = document.querySelector('.writing-progress-wrap');
+  const writingProgressLine = document.querySelector('.writing-progress-line');
+  let writingNodes = [];
+
+  const initWritingCards = () => {
+    const cards = document.querySelectorAll('.writing-card');
+    if (cards.length === 0) return;
+    if ('IntersectionObserver' in window) {
+      const writingObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          entry.target.classList.toggle('revealed', entry.isIntersecting);
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+      cards.forEach((card, i) => {
+        card.style.transitionDelay = `${Math.min(i * 60, 300)}ms`;
+        writingObserver.observe(card);
+      });
+    } else {
+      cards.forEach(card => card.classList.add('revealed'));
+    }
+  };
+
+  // One drop-in node per article, positioned on the progress line beside that article's title
+  const buildWritingNodes = () => {
+    if (!writingProgressLine) return;
+    writingProgressLine.querySelectorAll('.writing-progress-node').forEach(n => n.remove());
+    const lineRect = writingProgressLine.getBoundingClientRect();
+    writingNodes = Array.from(document.querySelectorAll('.writing-card-title')).map((title) => {
+      const node = document.createElement('div');
+      node.className = 'writing-progress-node';
+      const r = title.getBoundingClientRect();
+      node.style.top = `${r.top - lineRect.top + r.height / 2}px`;
+      writingProgressLine.appendChild(node);
+      return node;
+    });
+    // Force the browser to commit the pre-drop state before any class toggle,
+    // otherwise a same-tick add of "dropped" right after creation can skip the transition.
+    void writingProgressLine.offsetHeight;
+  };
+
+  const updateWritingProgress = () => {
+    if (!writingProgressFill || !writingProgressWrap) return;
+    const wrapRect = writingProgressWrap.getBoundingClientRect();
+    const readingLineY = window.innerHeight * 0.45;
+    // Near the bottom of the page there's no scroll room left for the reading line to
+    // reach the last card, so force completion instead of leaving the fill/divider short.
+    const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+    const fillPx = atBottom ? wrapRect.height : Math.min(wrapRect.height, Math.max(0, readingLineY - wrapRect.top));
+    writingProgressFill.style.height = wrapRect.height > 0 ? `${(fillPx / wrapRect.height) * 100}%` : '0%';
+
+    document.querySelectorAll('.writing-card').forEach((card, i) => {
+      if (atBottom) card.classList.add('revealed');
+
+      const title = card.querySelector('.writing-card-title');
+      const r = title.getBoundingClientRect();
+      const center = r.top + r.height / 2;
+      // Node pop and underline draw fire the moment the reading line enters the glow
+      // zone (same -70px threshold as the glow check) so all three happen together.
+      const crossed = atBottom || readingLineY >= center - 70;
+      title.classList.toggle('glow', Math.abs(center - readingLineY) < 70);
+      card.classList.toggle('line-drawn', crossed);
+      // Toggle (not just add) so the drop replays every time the line crosses back and forth
+      if (writingNodes[i]) writingNodes[i].classList.toggle('dropped', crossed);
+    });
+  };
+
+  if (document.querySelectorAll('.writing-card').length > 0) {
+    initWritingCards();
+    buildWritingNodes();
+    window.addEventListener('scroll', updateWritingProgress, { passive: true });
+    window.addEventListener('resize', () => {
+      buildWritingNodes();
+      updateWritingProgress();
+    }, { passive: true });
+    updateWritingProgress();
+
+    // Re-run after CMS replaces #cms-writing-list's contents
+    window.__writingCardsInit = () => {
+      initWritingCards();
+      buildWritingNodes();
+      updateWritingProgress();
+    };
   }
 
   // 5. GSAP CINEMATIC ENTRANCE ANIMATIONS
